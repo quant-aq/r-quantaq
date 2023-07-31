@@ -1,5 +1,4 @@
 library(httr)
-library(jsonlite)
 
 #' Setup the api client
 #'
@@ -38,14 +37,14 @@ setup_client <- function(api_type = 'prod', api_key = NULL, version = 'v1') {
     }
   }
 
-  authenticate_client()
-
   Sys.setenv(
     'api_key' = api_key,
     'base_url' = base_url,
     'version' = version,
     'ua' = ua
     )
+
+  authenticate_client()
 }
 
 #' Access client variables

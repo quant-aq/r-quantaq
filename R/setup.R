@@ -1,24 +1,20 @@
-library(httr)
-
-#' Setup the api client
+#' Setup the API client
 #'
-#' @description
-#' `setup_client` sets up the api key and url for querying the api
+#' Sets up user details for querying the API
 #'
-#' @details
-#' Requests the api key, creates the url and user agent, and assigns
-#' them all to environment variables for access by later api calls.
-#' The url is created by combining the provided 'version' number string with the
-#' appropriate base url (determined according to the provided 'api_type').
+#' Assigns API key, base url, version, and user agent to environment variables
+#' for access by later API calls, and verifies these settings.
 #'
-#' @param api_type character The api type -- 'prod' or 'dev'. Defaults to 'prod'.
+#' @param api_type (Optional) A character string containing the API type -- 'prod' or 'dev' -- which determines the base url. Defaults to 'prod'.
 #'
-#' @param api_key character Your QuantAQ API key.
+#' @param api_key (Optional) A character string containing your QuantAQ API key. If left NULL, user will be prompted for it during execution.
 #'
-#' @param version character The API version you're querying. Defaults to 'v1'.
+#' @param version (Optional) A character string containing the API version you're querying. Defaults to 'v1'.
 #'
-#'@export
-setup_client <- function(api_type = 'prod', api_key = NULL, version = 'v1') {
+#' @returns No return value. Sets API details as environment variables.
+#'
+#' @export
+setup_client <- function(api_type = 'prod', version = 'v1', api_key = NULL) {
   ua <- user_agent("https://github.com/quant-aq/r-quantaq")
 
   base_url <- dplyr::case_when(
@@ -50,31 +46,38 @@ setup_client <- function(api_type = 'prod', api_key = NULL, version = 'v1') {
 #' Access client variables
 #'
 #' @description
-#' `access_client` retrieves the relevant client variables
+#' Retrieves the relevant client variables
 #'
 #' @details
-#' A helper function that retrieves the environment variables set by setup_client,
-#' used for interfacing with the api. This is the api key, base url, version,
-#' and user agent.
+#' A helper function that retrieves the API details set as environment variables
+#' by \code{\link{setup_client()}}.
 #'
-#'@export
+#' @export
 access_client <- function(){
-  return(list(
+  client <- list(
     'api_key' = Sys.getenv('api_key'),
     'base_url' = Sys.getenv('base_url'),
     'version' = Sys.getenv('version'),
     'ua' = Sys.getenv('ua')
-  ))
+  )
+
+  if(any(as.logical(lapply(client, function(x) x == "")))){
+    stop("Some API details are missing! Did you remember to run `setup_client()`?")
+  }
+
+  return(client)
 }
 
-#' Authenticate api connection
+#' Authenticate API connection
 #'
 #' @description
-#'`authenticate_client` confirms API authentication
+#' Confirms API authentication
+#'
+#' @import httr
 #'
 #' @details
-#' A helper function for `client_setup()` to determines that the provided API
-#' key provides a proper connection with the API.
+#' A helper function for `client_setup()` to determine that the user-provided
+#' API details yields a proper connection with the API.
 #'
 authenticate_client <- function(){
   client <- access_client()

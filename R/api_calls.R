@@ -6,16 +6,16 @@
 #'
 #' @param endpoint A character vector of an endpoint. Can be a full or relative URL
 #'
-#' @param query_params A list of query params to format and attach to the URL
+#' @param ... Query parameters to format and attach to the URL (e.g. per_page)
 #'
 #' @returns A character vector containing the final built URL.
 #'
-build_api_url <- function(endpoint, query_params = NULL){
+build_api_url <- function(endpoint, ...){
   client <- access_client()
   url_string <- paste(client$base_url, client$version, "", sep="/")
   combined_url_string <- XML::getRelativeURL(endpoint, url_string) # combined url string and path/endpoint
 
-  final_url <- modify_url(combined_url_string, query = query_params)
+  final_url <- modify_url(combined_url_string, query = list(...))
 
   return(final_url)
 }
@@ -30,17 +30,21 @@ build_api_url <- function(endpoint, query_params = NULL){
 #'
 #' @param verb The httr function representing the HTTP verb. Defaults to GET.
 #'
-#' @param query_params (Optional) A named list including any query arguments.
+#' @param ... Named query parameters to
 #'
 #' @examples
 #' \dontrun{r <- request("account")}
-#' \dontrun{r <- request("devices/MOD-PM-00808/data", query_params = list(limit=5))}
 #'
-#' @returns A request object containing the response from the API.
+#' # include named arguments for query params, e.g. to limit the response to the first 5 results:
+#' \dontrun{r <- request("devices/MOD-PM-00808/data", limit = 5)}
 #'
-request <- function(endpoint, verb=httr::GET, query_params=NULL, filter_specs=NULL){
+#' @returns The parsed JSON from the API, including both data and metadata.
+#'
+request <- function(endpoint, verb=httr::GET, ...){
+  # query_params = list(...)
   client <- access_client()
-  this_url <- build_api_url(endpoint, query_params)
+  this_url <- build_api_url(endpoint, ...)
+
   resp <- verb(this_url,
               authenticate(client$api_key, ""),
               add_headers(user_agent = client$ua))
@@ -63,28 +67,10 @@ request <- function(endpoint, verb=httr::GET, query_params=NULL, filter_specs=NU
     stop("API did not return JSON", call. = FALSE)
   }
 
-
-
   parsed <- jsonlite::fromJSON(content(resp, "text"), simplifyVector = FALSE)
 
   return(parsed)
-
-  # structure(
-  #   list(
-  #     content = parsed,
-  #     path = this_url,
-  #     response = resp
-  #   ),
-  #   class = "request"
-  # )
-
 }
-
-# print.request <- function(x, ...){
-#   cat("<QuantAQ ", x$path, ">\n", sep="")
-#   str(x$content)
-#   invisible(x)
-# }
 
 #' Deal with paginated data.
 #'
@@ -92,7 +78,7 @@ request <- function(endpoint, verb=httr::GET, query_params=NULL, filter_specs=NU
 #'
 #' @param request Content from a \code{\link{request()}}
 #'
-#' @returns The collated data from every page of the data.
+#' @returns All collated pages of the data.
 paginate <- function(response_content){
   all_data <- response_content$data
   next_url <- response_content$meta$next_url
@@ -111,35 +97,19 @@ paginate <- function(response_content){
   return(all_data)
 }
 
-# requests <- function(endpoint, verb=httr:GET, query_params = NULL){
-#
-# }
+#' Request that handles pagination
+#'
+#' @returns Parsed data from the API.
+#'
+#'
+requests <- function(endpoint, verb=httr:GET, query_params = NULL){
+  if(is.null(query_params)){
+    names(query_params) <- lapply(names(query_params),stringr::str_to_lower) # standardize params
+
+    # TODO: how to handle unrecognized args/params to API? does API throw error?
+
+  }
 
 
-# TODO:
-# data_to_dataframe <- function(){}
-# TODO: make every specific get request return am object, and then provide a "as.data.frame" for each of them?
-
-get_teams <- function(id = NULL){
-  request("teams")
-}
-
-whoami <- function(){
-  request("account")
-}
-
-get_devices <- function(sn = NULL){
-  endpoint <- paste("devices", sn, sep = "/")
-  request(endpoint)
-}
-
-get_device_metadata <- function(sn = NULL){
-  endpoint <- paste("meta-data", sn, sep="/")
-  request(endpoint)
-}
-
-get_data <- function(sn, start = NULL, stop = NULL){
-  endpoint <- paste("devices", sn, "data", sep = "/")
-  request(endpoint, query_params = list("start" = start, "stop" = stop))
 }
 

@@ -24,13 +24,13 @@ build_api_url <- function(endpoint, ...){
 #'
 #' Generate an API request given endpoint, http verb, and any relevant query parameters.
 #'
-#' @import httr
+#' @importFrom httr GET
 #'
 #' @param endpoint A character string of the API endpoint to request.
 #'
-#' @param verb The httr function representing the HTTP verb. Defaults to GET.
+#' @param verb The httr function corresponding to the HTTP verb. Defaults to GET.
 #'
-#' @param ... Named query parameters to
+#' @param ... Query string parameters.
 #'
 #' @examples
 #' \dontrun{r <- request("account")}
@@ -40,14 +40,13 @@ build_api_url <- function(endpoint, ...){
 #'
 #' @returns The parsed JSON from the API, including both data and metadata.
 #'
-request <- function(endpoint, verb=httr::GET, ...){
-  # query_params = list(...)
+request <- function(endpoint, verb = httr::GET, ...){
   client <- access_client()
   this_url <- build_api_url(endpoint, ...)
 
   resp <- verb(this_url,
-              authenticate(client$api_key, ""),
-              add_headers(user_agent = client$ua))
+            authenticate(client$api_key, ""),
+            add_headers(user_agent = client$ua))
 
   # because API doesn't return json upon 400 and 500 errors, check that first
   if (http_error(resp)) {
@@ -76,10 +75,14 @@ request <- function(endpoint, verb=httr::GET, ...){
 #'
 #' Iterates over and collated all pages of the data.
 #'
+#' @importFrom httr GET
+#'
 #' @param request Content from a \code{\link{request()}}
 #'
+#' @param verb The httr function corresponding to the HTTP verb. Defaults to GET.
+#'
 #' @returns All collated pages of the data.
-paginate <- function(response_content){
+paginate <- function(response_content, verb = httr::GET){
   all_data <- response_content$data
   next_url <- response_content$meta$next_url
 
@@ -87,7 +90,7 @@ paginate <- function(response_content){
   while(!is.null(next_url)){
     this_query <- parse_url(next_url)$query
 
-    r <- request(next_url, query_params = this_query)
+    r <- do.call(request, list(next_url, verb, this_query))
 
     next_url <- r$meta$next_url
 
@@ -97,19 +100,69 @@ paginate <- function(response_content){
   return(all_data)
 }
 
+#' Handle requests params
+#'
+#' Format the parameters that can be passed to requests.
+#'
+#' @importFrom stringr str_split
+#'
+#' @param ... Parameters to be passed to the request.
+#'
+#' @returns A named list of query params.
+#'
+format_params <- function(...){
+  # names(kwargs) <- lapply(names(kwargs),stringr::str_to_lower) # standardize param names
+  kwargs <- list(...)
+  filter <- stringr::str_split(kwargs$filter, ";")
+
+  # TODO: set default per_page to 100?
+
+  if("start" %in% names(kwargs)){
+    filter <- c(filter,paste0("timestamp,ge,", kwargs$start))
+    kwargs$start <- NULL
+  }
+
+  if("stop" %in% names(kwargs)){
+    filter <- c(filter,paste0("timestamp,le,", kwargs$stop))
+    kwargs$stop <- NULL
+  }
+
+  # format the filter string. If it's not empty, add it to kwargs
+  filter <- paste(filter, collapse = ";")
+
+  if(!filter == ""){
+    kwargs$filter <- filter
+  }
+
+  return(kwargs)
+}
+
 #' Request that handles pagination
+#'
+#' @importFrom httr GET
+#'
+#' @param endpoint A character string of the API endpoint to request.
+#'
+#' @param verb The httr function corresponding to the HTTP verb. Defaults to GET.
+#'
+#' @param ... Parameters
 #'
 #' @returns Parsed data from the API.
 #'
 #'
-requests <- function(endpoint, verb=httr:GET, query_params = NULL){
-  if(is.null(query_params)){
-    names(query_params) <- lapply(names(query_params),stringr::str_to_lower) # standardize params
+requests <- function(endpoint, verb = httr::GET, ...){
+  # first, handle all the keyword args
+  kwargs <- format_params(...)
 
-    # TODO: how to handle unrecognized args/params to API? does API throw error?
+  # r = request(endpoint, verb, kwargs)
+  r <- do.call(request, list(endpoint, verb, kwargs))
+
+  pages <- r$meta
+  if(!is.null(pages$next_url)){
 
   }
 
-
+  # do.call(request)
+  #
+  # r
 }
-

@@ -4,13 +4,15 @@
 \alias{paginate}
 \title{Deal with paginated data.}
 \usage{
-paginate(response_content)
+paginate(response_content, verb = httr::GET)
 }
 \arguments{
+\item{verb}{The httr function corresponding to the HTTP verb. Defaults to GET.}
+
 \item{request}{Content from a \code{\link{request()}}}
 }
 \value{
-The collated data from every page of the data.
+All collated pages of the data.
 }
 \description{
 Iterates over and collated all pages of the data.

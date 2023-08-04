@@ -149,7 +149,6 @@ format_params <- function(...){
 #'
 #' @returns Parsed data from the API.
 #'
-#'
 requests <- function(endpoint, verb = httr::GET, ...){
   # first, handle all the keyword args
   kwargs <- format_params(...)

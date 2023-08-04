@@ -4,23 +4,25 @@
 \alias{request}
 \title{Complete an API request}
 \usage{
-request(endpoint, verb = httr::GET, query_params = NULL, filter_specs = NULL)
+request(endpoint, verb = httr::GET, ...)
 }
 \arguments{
 \item{endpoint}{A character string of the API endpoint to request.}
 
-\item{verb}{The httr function representing the HTTP verb. Defaults to GET.}
+\item{verb}{The httr function corresponding to the HTTP verb. Defaults to GET.}
 
-\item{query_params}{(Optional) A named list including any query arguments.}
+\item{...}{Query string parameters.}
 }
 \value{
-A request object containing the response from the API.
+The parsed JSON from the API, including both data and metadata.
 }
 \description{
 Generate an API request given endpoint, http verb, and any relevant query parameters.
 }
 \examples{
 \dontrun{r <- request("account")}
-\dontrun{r <- request("devices/MOD-PM-00808/data", query_params = list(limit=5))}
+
+# include named arguments for query params, e.g. to limit the response to the first 5 results:
+\dontrun{r <- request("devices/MOD-PM-00808/data", limit = 5)}
 
 }

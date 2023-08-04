@@ -5,6 +5,8 @@
 #' Assigns API key, base url, version, and user agent to environment variables
 #' for access by later API calls, and verifies these settings.
 #'
+#' @importFrom dplyr case_when
+#'
 #' @param api_type (Optional) A character string containing the API type -- 'prod' or 'dev' -- which determines the base url. Defaults to 'prod'.
 #'
 #' @param api_key (Optional) A character string containing your QuantAQ API key. If left NULL, user will be prompted for it during execution.
@@ -23,14 +25,14 @@ setup_client <- function(api_type = 'prod', version = 'v1', api_key = NULL) {
   )
 
   if (is.null(api_key)){
-    if (Sys.getenv("RSTUDIO") == "1"){
+    # if (Sys.getenv("RSTUDIO") == "1"){
       api_key <- rstudioapi::askForSecret(
         name = "QuantAQ API",
         message = 'Enter your API Key',
         title = "QuantAQ API Key")
-    } else {
-      api_key <- readline(prompt = "Please enter your QuantAQ API Key:")
-    }
+    # } else {
+    #   api_key <- readline(prompt = "Please enter your QuantAQ API Key:")
+    # }
   }
 
   Sys.setenv(

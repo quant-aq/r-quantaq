@@ -4,12 +4,12 @@
 \alias{build_api_url}
 \title{Build and return URL}
 \usage{
-build_api_url(endpoint, query_params = NULL)
+build_api_url(endpoint, ...)
 }
 \arguments{
 \item{endpoint}{A character vector of an endpoint. Can be a full or relative URL}
 
-\item{query_params}{A list of query params to format and attach to the URL}
+\item{...}{Query parameters to format and attach to the URL (e.g. per_page)}
 }
 \value{
 A character vector containing the final built URL.

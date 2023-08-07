@@ -5,6 +5,9 @@
 
 whoami <- function(){
   requests("account")
+
+  # inital pass at to df:
+  # whoami() %>% as.data.frame() %>% mutate(across(c(last_seen, member_since), ~lubridate::parse_date_time(.x, "Ymd H:M:S.")))
 }
 
 get_teams <- function(id = NULL){
@@ -20,10 +23,27 @@ get_device_metadata <- function(sn = NULL){
 }
 
 # TODO: include "raw"
-get_data <- function(sn, query_params = NULL, ...){
+get_data <- function(sn, ...){
   # if(args())
 
-  # endpoint <- paste("devices", sn, "data", sep = "/")
-  # request(endpoint, query_params = query_params)
+  endpoint <- paste("devices", sn, "data", sep = "/")
+  request(endpoint)
 }
 
+get_data_to_df <- function(data){
+  flat_df <- data %>% list_flatten() %>% list_flatten() %>% as.data.frame
+
+  flat_df %>%
+    rename_with(~ gsub("\\.([0-9]+$)", "__\\1", .x)) %>%
+    rename_with(~gsub("$", "__0", .x), matches("[a-z]([0-9]+)?$")) %>%
+    pivot_longer(
+      everything(),
+      names_to =c(".value", "ind"),
+      names_pattern = "(^.*)(__[0-9]+$)"
+    ) %>%
+    mutate(across(ind, ~ gsub("__", "", .x) %>% as.numeric)) %>%
+    select(timestamp, everything()) %>%
+    mutate(across(c(timestamp, timestamp_local), ~lubridate::parse_date_time(.x, "Y-mdH:M:S"))) %>%
+    arrange(across(timestamp)) %>%
+    select(-ind)
+}

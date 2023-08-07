@@ -6,16 +6,16 @@
 #'
 #' @param endpoint A character vector of an endpoint. Can be a full or relative URL
 #'
-#' @param ... Query parameters to format and attach to the URL (e.g. per_page)
+#' @param qs_params A list of query string parameters to format and attach to the URL (e.g. list(per_page = 10))
 #'
 #' @returns A character vector containing the final built URL.
 #'
-build_api_url <- function(endpoint, ...){
+build_api_url <- function(endpoint, qs_params = NULL){
   client <- access_client()
   url_string <- paste(client$base_url, client$version, "", sep="/")
   combined_url_string <- XML::getRelativeURL(endpoint, url_string) # combined url string and path/endpoint
 
-  final_url <- modify_url(combined_url_string, query = list(...))
+  final_url <- modify_url(combined_url_string, query = qs_params)
 
   return(final_url)
 }
@@ -30,7 +30,7 @@ build_api_url <- function(endpoint, ...){
 #'
 #' @param verb The httr function corresponding to the HTTP verb. Defaults to GET.
 #'
-#' @param ... Query string parameters.
+#' @param qs_params Query string parameters.
 #'
 #' @examples
 #' \dontrun{r <- request("account")}
@@ -40,9 +40,9 @@ build_api_url <- function(endpoint, ...){
 #'
 #' @returns The parsed JSON from the API, including both data and metadata.
 #'
-request <- function(endpoint, verb = httr::GET, ...){
+request <- function(endpoint, verb = httr::GET, qs_params = NULL){
   client <- access_client()
-  this_url <- build_api_url(endpoint, ...)
+  this_url <- build_api_url(endpoint, qs_params)
 
   resp <- verb(this_url,
             authenticate(client$api_key, ""),
@@ -82,6 +82,7 @@ request <- function(endpoint, verb = httr::GET, ...){
 #' @param verb The httr function corresponding to the HTTP verb. Defaults to GET.
 #'
 #' @returns All collated pages of the data.
+#'
 paginate <- function(response_content, verb = httr::GET){
   all_data <- response_content$data
   next_url <- response_content$meta$next_url
@@ -106,7 +107,7 @@ paginate <- function(response_content, verb = httr::GET){
 #'
 #' @importFrom stringr str_split
 #'
-#' @param ... Parameters to be passed to the request.
+#' @param ... Parameters to be translated to query string and passed to the request.
 #'
 #' @returns A named list of query params.
 #'
@@ -145,7 +146,7 @@ format_params <- function(...){
 #'
 #' @param verb The httr function corresponding to the HTTP verb. Defaults to GET.
 #'
-#' @param ... Parameters
+#' @param ... Wrapper params to be translated to query string.
 #'
 #' @returns Parsed data from the API.
 #'
@@ -153,15 +154,16 @@ requests <- function(endpoint, verb = httr::GET, ...){
   # first, handle all the keyword args
   kwargs <- format_params(...)
 
-  # r = request(endpoint, verb, kwargs)
-  r <- do.call(request, list(endpoint, verb, kwargs))
+  r <- request(endpoint, params = kwargs)
 
   pages <- r$meta
-  if(!is.null(pages$next_url)){
-
+  if(!is.null(pages)){
+    if(!is.null(pages$next_url) & pages$page != pages$pages){
+      data <- paginate(r)
+    } else {
+      data <- r$data
+    }
   }
 
-  # do.call(request)
-  #
-  # r
+  return(data)
 }

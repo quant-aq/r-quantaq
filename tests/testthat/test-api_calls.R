@@ -12,8 +12,8 @@ test_that("build_api_url deals with api partial endpoint", {
   expect_identical(api_url, "https://api.quant-aq.com/device-api/v1/devices/MOD-PM-00808/data/?page=2&per_page=50")
 })
 
-test_that("build_api_url deals with added query params in query_params arg", {
-  built_url <- build_api_url("https://api.quant-aq.com/device-api/v1/devices/MOD-PM-00808/data/?page=1", per_page = 50)
+test_that("build_api_url deals with added keyword args", {
+  built_url <- build_api_url("https://api.quant-aq.com/device-api/v1/devices/MOD-PM-00808/data/?page=1", qs_params = list(per_page = 50))
 
   expected_url <- "https://api.quant-aq.com/device-api/v1/devices/MOD-PM-00808/data/?page=1&per_page=50"
 
@@ -31,7 +31,7 @@ test_that("request GET handles trailing slash", {
 
 test_that("request GET with limit returns appropriate amount", {
   this_limit <- 2
-  content <- request("devices", limit = this_limit)
+  content <- request("devices", qs_params = list(limit = this_limit))
   expect_equal(length(content$data), this_limit)
   expect_equal(content$meta$total, this_limit)
 })
@@ -39,7 +39,7 @@ test_that("request GET with limit returns appropriate amount", {
 #-------------- paginate()
 
 test_that("paginate returns proper size data when given multiple pages", {
-  r <- request("devices/MOD-PM-00808/data/", per_page = 50, limit = 200)
+  r <- request("devices/MOD-PM-00808/data/", qs_params = list(per_page = 50, limit = 200))
 
   paginated_data <- paginate(r)
 
@@ -47,7 +47,7 @@ test_that("paginate returns proper size data when given multiple pages", {
 })
 
 test_that("paginate returns proper size when given one page", {
-  r <- request("devices/MOD-PM-00808/data/", limit = 10)
+  r <- request("devices/MOD-PM-00808/data/", qs_params = list(limit = 10))
 
   paginated_data <- paginate(r)
 
@@ -93,5 +93,8 @@ test_that("format_params with both start and stop formats correctly", {
 
 #-------------- requests()
 
-# test_that("requests with start/stop returns data from the expected timestamp ranges")
-# request("devices/MOD-PM-00808/data/", start = "2023-08-03T20:33:42")
+# test_that("requests with start/stop returns data from the expected timestamp ranges", {
+#   x <- requests("devices/MOD-PM-00808/data/", start = "2023-08-03T20:33:40", limit = 20)
+#
+#   x[[1]]$timestamp
+# })

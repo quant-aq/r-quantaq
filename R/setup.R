@@ -16,7 +16,7 @@
 #' @returns No return value. Sets API details as environment variables.
 #'
 #' @export
-setup_client <- function(api_type = 'prod', version = 'v1', api_key = NULL) {
+setup_client <- function(api_type = 'prod', version = 'v1', api_key = NULL, verbose = FALSE) {
   ua <- user_agent("https://github.com/quant-aq/r-quantaq")
 
   base_url <- dplyr::case_when(
@@ -42,7 +42,7 @@ setup_client <- function(api_type = 'prod', version = 'v1', api_key = NULL) {
     'ua' = ua
     )
 
-  authenticate_client()
+  authenticate_client(verbose)
 }
 
 #' Access client variables
@@ -81,7 +81,7 @@ access_client <- function(){
 #' A helper function for `client_setup()` to determine that the user-provided
 #' API details yields a proper connection with the API.
 #'
-authenticate_client <- function(){
+authenticate_client <- function(verbose = FALSE){
   client <- access_client()
   path <- paste0(client$version,'/account') # just use "account" endpoint to authenticate
   url <- modify_url(client$base_url, path=path)
@@ -95,6 +95,8 @@ authenticate_client <- function(){
   } else if (code != 200){
     stop(http_status(code)$message)
   } else {
-    cat("Successfully connected to QuantAQ API!")
+    if(verbose == TRUE){
+      cat("Successfully connected to QuantAQ API!")
+    }
   }
 }

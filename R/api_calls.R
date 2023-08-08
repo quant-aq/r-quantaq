@@ -54,7 +54,7 @@ request <- function(endpoint, verb = httr::GET, qs_params = NULL){
       sprintf(
         "[%s] -- QuantAQ API request failed \n%s\npath: <%s>",
         status_code(resp),
-        content(resp, "text"),
+        content(resp, as = "text", encoding = "UTF-8"),
         this_url
       ),
       call. = FALSE
@@ -66,7 +66,7 @@ request <- function(endpoint, verb = httr::GET, qs_params = NULL){
     stop("API did not return JSON", call. = FALSE)
   }
 
-  parsed <- jsonlite::fromJSON(content(resp, "text"), simplifyVector = FALSE)
+  parsed <- jsonlite::fromJSON(content(resp, as = "text", encoding = "UTF-8"), simplifyVector = FALSE)
 
   return(parsed)
 }
@@ -91,7 +91,7 @@ paginate <- function(response_content, verb = httr::GET){
   while(!is.null(next_url)){
     this_query <- parse_url(next_url)$query
 
-    r <- do.call(request, list(next_url, verb, this_query))
+    r <- do.call(request, list(next_url, qs_params = this_query))
 
     next_url <- r$meta$next_url
 
@@ -146,15 +146,14 @@ format_params <- function(...){
 #'
 #' @param verb The httr function corresponding to the HTTP verb. Defaults to GET.
 #'
-#' @param ... Wrapper params to be translated to query string.
+#' @param ... Params to be translated to query string.
 #'
 #' @returns Parsed data from the API.
 #'
 requests <- function(endpoint, verb = httr::GET, ...){
-  # first, handle all the keyword args
   kwargs <- format_params(...)
 
-  r <- request(endpoint, params = kwargs)
+  r <- request(endpoint, qs_params = kwargs)
 
   pages <- r$meta
   if(!is.null(pages)){

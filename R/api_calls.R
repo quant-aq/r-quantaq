@@ -153,7 +153,7 @@ format_params <- function(...){
 requests <- function(endpoint, verb = httr::GET, ...){
   kwargs <- format_params(...)
 
-  r <- request(endpoint, qs_params = kwargs)
+  r <- request(endpoint, verb = verb, qs_params = kwargs)
 
   pages <- r$meta
   if(!is.null(pages)){

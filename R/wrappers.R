@@ -22,16 +22,26 @@ get_device_metadata <- function(sn = NULL){
   requests(paste("meta-data", sn, sep="/"))
 }
 
-# TODO: include "raw"
 get_data <- function(sn, ...){
-  # if(args())
-
   endpoint <- paste("devices", sn, "data", sep = "/")
+
+  if("raw" %in% ...names()){
+    endpoint = paste(endpoint, "raw/", sep= "/")
+  }
+
   request(endpoint)
 }
 
+#' Convert \code{get_data()} list to a dataframe.
+#'
+#' @importFrom purrr list_flatten
+#'
+#' @param data The data returned from \code{\link{get_data()}}.
+#'
+#' @returns The data from \code{get_data()} in data.frame format.
+#'
 get_data_to_df <- function(data){
-  flat_df <- data %>% list_flatten() %>% list_flatten() %>% as.data.frame
+  flat_df <- data %>% purrr::list_flatten %>% purrr::list_flatten %>% as.data.frame
 
   flat_df %>%
     rename_with(~ gsub("\\.([0-9]+$)", "__\\1", .x)) %>%

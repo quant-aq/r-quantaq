@@ -36,6 +36,20 @@ test_that("request GET with limit returns appropriate amount", {
   expect_equal(content$meta$total, this_limit)
 })
 
+test_that("request GET with timestamp filter returns appropriate timestamps", {
+  earliest_string <- "2023-08-06T22:00:00"
+
+  r <- request("devices/MOD-PM-00808/data/",
+               qs_params = list(filter = paste0("timestamp,ge,", earliest_string, ";timestamp,le,", latest_string)))
+
+  first_sample_timestamp <- lubridate::ymd_hms(r$data[[1]]$timestamp)
+  last_sample_timestamp <- lubridate::ymd_hms(r$data[[length(r$data)]]$timestamp)
+  expected_interval <- lubridate::interval(lubridate::ymd_hms(earliest_string), lubridate::ymd_hms(latest_string))
+
+  expect_true(first_sample_timestamp %within% expected_interval)
+  expect_true(last_sample_timestamp %within% expected_interval)
+})
+
 #-------------- paginate()
 
 test_that("paginate returns proper size data when given multiple pages", {
@@ -52,6 +66,23 @@ test_that("paginate returns proper size when given one page", {
   paginated_data <- paginate(r)
 
   expect_equal(length(paginated_data), 10)
+})
+
+test_that("all the data in a paginate call with a timestamp filtered request gives appropriate timestamps", {
+  earliest_string <- "2023-08-06T00:00:00"
+  latest_string <- "2023-08-06T22:06:00"
+
+  r <- request("devices/MOD-PM-00808/data/",
+               qs_params = list(filter = paste0("timestamp,ge,", earliest_string, ";timestamp,le,", latest_string)))
+
+  all_data <- paginate(r)
+
+  first_sample_timestamp <- lubridate::ymd_hms(all_data[[length(all_data)]]$timestamp)
+  last_sample_timestamp <- lubridate::ymd_hms(all_data[[1]]$timestamp)
+  expected_interval <- lubridate::interval(lubridate::ymd_hms(earliest_string), lubridate::ymd_hms(latest_string))
+
+  expect_true(first_sample_timestamp %within% expected_interval)
+  expect_true(last_sample_timestamp %within% expected_interval)
 })
 
 #-------------- format_params()
@@ -80,7 +111,7 @@ test_that("format_params with filter and other named query params attaches every
 })
 
 test_that("format_params with both start and stop formats correctly", {
-  # both the following calls should yield the same result because the fx always does "start" first, then "stop"
+  # both the following calls should yield the same result because the fx always handles "start" first, then "stop"
   p1 <- format_params(limit = 500, start = "2020-01-01 00:00", stop = "2023-03-03 00:00", filter = "device_state,eq,ACTIVE")
   p2 <- format_params(limit = 500, stop = "2023-03-03 00:00", start = "2020-01-01 00:00", filter = "device_state,eq,ACTIVE")
 
@@ -90,11 +121,15 @@ test_that("format_params with both start and stop formats correctly", {
   expect_identical(p2$filter, expected_string)
 })
 
-
 #-------------- requests()
 
-# test_that("requests with start/stop returns data from the expected timestamp ranges", {
-#   x <- requests("devices/MOD-PM-00808/data/", start = "2023-08-03T20:33:40", limit = 20)
-#
-#   x[[1]]$timestamp
-# })
+test_that("requests for data with only one page short circuits to a simple request", {
+  x <- requests("devices/MOD-PM-00808/data/", limit = 10)
+
+})
+
+test_that("requests with start/stop returns data from the expected timestamp ranges", {
+  x <- requests("devices/MOD-PM-00808/data/", start = "2023-08-06T00:00:00", stop = "2023-08-06T22:06:00")
+
+  x[[1]]$timestamp
+})

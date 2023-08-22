@@ -104,7 +104,7 @@ as.data.frame.devices <- function(x, ...){
   return(out_df)
 }
 
-#' #' Get the device metadata according to specified serial number
+#' #' Get device metadata
 #' #'
 #' #' @param sn Device serial number
 #' #' @returns The device metadata
@@ -115,14 +115,16 @@ as.data.frame.devices <- function(x, ...){
 #'   )
 #' }
 
-#' Get device data according to provided serial number and other parameters
+#' Get device data
+#'
+#' Get data according to provided serial number and other parameters.
 #'
 #' @param sn A device serial number
 #' @param limit (Optional) The number of data points to return
 #' @param start (Optional) The earliest date to retrieve data from. Should be a timestamp string of the form "YYYY-MM-DD HH:MM:SS"
 #' @param stop (Optional) The latest date to retrieve data from. Should be a timestamp string of the form "YYYY-MM-DD HH:MM:SS"
 #' @param filter (Optional) A string providing filter parameters, see below examples and \href{https://docs.quant-aq.com/api#8e14edbf9dee4162a04f729ce022cb4b}{API documentation} for more information.
-#' @param sort (Optional) A data variable upon which to sort, and the sort method (ascending or descending), formatted as "variable,method", e.g. "timestamp,asc"
+#' @param sort (Optional) A data variable upon which to sort, and the sort method (ascending or descending), formatted as "parameter,order", e.g. "timestamp,asc"
 #' @param raw (Optional) Returns the raw data. Currently only available to developers and admins.
 #'
 #' @examples
@@ -168,4 +170,30 @@ as.data.frame.device_data <- function(x, ...){
     dplyr::rename_with(~gsub("_1$", "", .x)) %>% # remove "_1" suffix for all columns
     mutate(across(starts_with("timestamp"), ~lubridate::parse_date_time(.x, "Ymd H:M:S."))) %>%
     select(timestamp, everything())
+}
+
+#' Gets log data for device with
+get_logs <- function(sn, ...){
+  structure(
+    requests(paste("log", sn, sep = "/"), ...),
+    class = "logs"
+  )
+}
+
+#' Get device calibration models
+#' @export
+get_models <- function(sn, ...){
+  structure(
+    requests(paste("calibration-models", sn, sep="/"), ...),
+    class = 'calibration_models'
+  )
+}
+
+#' Coerce calibration_models class to data.frame
+#' @export
+as.data.frame.calibration_models <- function(x, ...){
+  do.call(rbind, lapply(x,rbind)) %>%
+    as.data.frame %>%
+    unnest_all() %>%
+    dplyr::rename_with(~gsub("_1$", "", .x)) # remove "_1" suffix for all columns
 }

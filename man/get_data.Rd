@@ -2,7 +2,7 @@
 % Please edit documentation in R/wrappers.R
 \name{get_data}
 \alias{get_data}
-\title{#' Get the device metadata according to specified serial number
+\title{#' Get device metadata
 #'
 #' @param sn Device serial number
 #' @returns The device metadata
@@ -12,7 +12,7 @@ requests(paste("meta-data", sn, sep="/")),
 class = "metadata"
 )
 }
-Get device data according to provided serial number and other parameters}
+Get device data}
 \usage{
 get_data(sn, ...)
 }
@@ -27,22 +27,12 @@ get_data(sn, ...)
 
 \item{filter}{(Optional) A string providing filter parameters, see below examples and \href{https://docs.quant-aq.com/api#8e14edbf9dee4162a04f729ce022cb4b}{API documentation} for more information.}
 
-\item{sort}{(Optional) A data variable upon which to sort, and the sort method (ascending or descending), formatted as "variable,method", e.g. "timestamp,asc"}
+\item{sort}{(Optional) A data variable upon which to sort, and the sort method (ascending or descending), formatted as "parameter,order", e.g. "timestamp,asc"}
 
 \item{raw}{(Optional) Returns the raw data. Currently only available to developers and admins.}
 }
 \description{
-#' Get the device metadata according to specified serial number
-#'
-#' @param sn Device serial number
-#' @returns The device metadata
-get_device_metadata <- function(sn){
-structure(
-requests(paste("meta-data", sn, sep="/")),
-class = "metadata"
-)
-}
-Get device data according to provided serial number and other parameters
+Get data according to provided serial number and other parameters.
 }
 \examples{
 \dontrun{

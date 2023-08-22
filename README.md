@@ -18,7 +18,7 @@ Though you can include the api key in the function signature, (i.e. `setup_clien
 # Basic Functioning
 `whoami()` returns your account information, and each `get_` function GETs the data from its similarly-named API endpoint. Each of these can be piped or passed to `as.data.frame` for nicer formatting, e.g.
 
-```
+```R
 as.data.frame(get_data("MOD-PM-00233"))
 get_data("MOD-PM-00233") %>% as.data.frame()
 ```
@@ -30,21 +30,21 @@ Advanced requests are available by named keywords, examples below. See [API man 
 
 ## Filter
 
-```
+```R
 # filter = '<parameter>,<filter spec>,<value>;<parameter>,<filter spec>,<value>;'
 get_data("MOD-PM-002233", filter = 'pm25,ge,25;pm25,le,50') # returns data where pm25 is greater than or equal to 25 and less than or equal to 50
 ```
 
 ## Limit 
 
-```
+```R
 # limit = <value>
 get_devices(limit = 25) # returns 25 devices
 get_data("MOD-PM-00233"), limit = 10) # returns first 10 timestamps of data
 ```
 
 ## Sort
-```
+```R
 # sort = '<parameter><order>', where 'order' is one of "asc" or "desc" 
 get_data("MOD-PM-00233"), sort = 'timestamp,desc') # returns data in descending order by timestamp
 ```

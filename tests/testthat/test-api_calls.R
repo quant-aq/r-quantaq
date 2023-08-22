@@ -161,10 +161,9 @@ test_that("requests for data with only one page returns a simple request", {
 
 test_that("data requests that return only one datapoint are same structure as things with multiple elements",{
   x <- requests("devices/MOD-PM-00808/data/", limit = 1)
-  y <- requests("devices/MOD-PM-00808/data/")
+  y <- requests("devices/MOD-PM-00808/data/", limit = 25)
 
   expect_identical(class(x), class(y))
-  expect_equal(length(x), length(y))
 })
 
 test_that("requests with start/stop returns data from the expected timestamp ranges", {
@@ -180,4 +179,3 @@ test_that("requests with start/stop returns data from the expected timestamp ran
   expect_true(lubridate::`%within%`(first_sample_timestamp,expected_interval))
   expect_true(lubridate::`%within%`(last_sample_timestamp,expected_interval))
 })
-

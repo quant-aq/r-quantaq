@@ -4,10 +4,12 @@
 \alias{get_devices}
 \title{Get the user's devices}
 \usage{
-get_devices(sn = NULL)
+get_devices(sn = NULL, ...)
 }
 \arguments{
 \item{sn}{A device serial number}
+
+\item{...}{Named arguments}
 }
 \value{
 The user's device information

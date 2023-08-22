@@ -2,7 +2,7 @@
 % Please edit documentation in R/wrappers.R
 \name{unnest_all}
 \alias{unnest_all}
-\title{A convenience function for \code{get_data()} to unnest recursively nested data frames.}
+\title{A convenience function to unnest recursively nested data frames.}
 \usage{
 unnest_all(df)
 }
@@ -13,5 +13,5 @@ unnest_all(df)
 A flattened data frame, one row per observation
 }
 \description{
-A convenience function for \code{get_data()} to unnest recursively nested data frames.
+A convenience function to unnest recursively nested data frames.
 }

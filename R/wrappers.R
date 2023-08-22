@@ -1,3 +1,25 @@
+#' A convenience function to unnest recursively nested data frames.
+#' @importFrom dplyr select where
+#' @importFrom tidyr unnest_wider
+#'
+#' @param df A recursively-nested data frame
+#'
+#' @returns A flattened data frame, one row per observation
+#'
+unnest_all <- function(df) {
+  list_columns <- df %>% dplyr::select(dplyr::where(is.list)) %>% names
+
+  if (length(list_columns) == 0) {
+    return(df)
+  }
+
+  for (list_column in list_columns) {
+    df <- df %>% tidyr::unnest_wider(list_column, names_sep = "_")
+  }
+  unnest_all(df)
+}
+
+
 #' Get the user's account information
 #'
 #' @returns The user's account information
@@ -19,7 +41,7 @@ whoami <- function(){
 #' @export
 as.data.frame.account <- function(x, ...){
   rbind("1" = x) %>% as.data.frame %>%
-    dplyr::mutate(across(c(last_seen, member_since), ~lubridate::parse_date_time(.x, "Ymd H:M:S.")))
+    dplyr::mutate(dplyr::across(c(last_seen, member_since), ~lubridate::parse_date_time(.x, "Ymd H:M:S.")))
 }
 
 #' Get the user's teams information.
@@ -50,11 +72,12 @@ as.data.frame.teams <- function(x, ...){
 #' Get the user's devices
 #'
 #' @param sn A device serial number
+#' @param ... Named arguments
 #' @returns The user's device information
 #' @export
-get_devices <- function(sn = NULL){
+get_devices <- function(sn = NULL, ...){
   structure(
-    requests(paste("devices", sn, sep = "/")),
+    requests(paste("devices", sn, sep = "/"), ...),
     class = "devices"
   )
 }
@@ -63,6 +86,7 @@ get_devices <- function(sn = NULL){
 #'
 #' Converts the class returned by \code{\link{get_devices}()} to a data.frame.
 #'
+#' @importFrom tidyr unnest unnest_wider
 #' @param x The devices class returned by \code{get_devices()}
 #' @returns The data from \code{get_devices()} in data.frame format
 #' @returns A data.frame containing the devices information
@@ -74,8 +98,8 @@ as.data.frame.devices <- function(x, ...){
 
   out_df <- do.call(rbind, lapply(x, rbind)) %>%
     as.data.frame %>%
-    tidyr::unnest_wider(geo, names_sep = "_") %>%
-    tidyr::unnest(everything())
+    unnest_all() %>%
+    dplyr::rename_with(~gsub("_1$", "", .x))
 
   return(out_df)
 }
@@ -122,30 +146,10 @@ get_data <- function(sn, ...){
     class = "device_data"
   )
 }
-#' A convenience function for \code{get_data()} to unnest recursively nested data frames.
-#' @importFrom dplyr select where unnest_wider
-#'
-#' @param df A recursively-nested data frame
-#'
-#' @returns A flattened data frame, one row per observation
-#'
-unnest_all <- function(df) {
-  list_columns <- df %>% select(where(is.list)) %>% names
-
-  if (length(list_columns) == 0) {
-    return(df)
-  }
-
-  for (list_column in list_columns) {
-    df <- df %>% unnest_wider(list_column, names_sep = "_")
-  }
-  unnest_all(df)
-}
-
 
 #' Converts the device data class to a data.frame.
 #'
-#' @import tidyr
+#' @importFrom dplyr rename_with
 #' @importFrom lubridate parse_date_time ymd_hms
 #'
 #'
@@ -162,5 +166,6 @@ as.data.frame.device_data <- function(x, ...){
     as.data.frame() %>%
     unnest_all() %>%
     dplyr::rename_with(~gsub("_1$", "", .x)) %>% # remove "_1" suffix for all columns
-    mutate(across(starts_with("timestamp"), ~lubridate::ymd_hms(.x)))
+    mutate(across(starts_with("timestamp"), ~lubridate::parse_date_time(.x, "Ymd H:M:S."))) %>%
+    select(timestamp, everything())
 }

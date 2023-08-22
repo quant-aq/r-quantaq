@@ -142,7 +142,7 @@ unnest_all <- function(df) {
 #' Converts the device data class to a data.frame.
 #'
 #' @import tidyr
-#' @importFrom lubridate parse_date_time
+#' @importFrom lubridate parse_date_time ymd_hms
 #'
 #'
 #' @param data The data returned from \code{\link{get_data()}}.
@@ -154,33 +154,10 @@ as.data.frame.device_data <- function(x, ...){
     x <- list(x)
   }
 
-  # x
-
-  # x %>%
-  #   tibble::as_tibble()
-#
   do.call(rbind, lapply(x, rbind)) %>%
-    as.data.frame() #%>%
-    # tibble::as_tibble() %>%
-    # tidyr::unnest(everything()) %>%
-    # tidyr::unnest_wider(where(is.list), names_sep = "_")
-#   #%>%
-#     # tidyr::unnest_wider(starts_with("model"), names_sep = "_") %>%
-#     # tidyr::unnest(everything()) %>%
-#     # dplyr::mutate(across(starts_with("timestamp"), ~lubridate::parse_date_time(.x, "Ymd H:M:S.")))
-#
-#   # do.call(rbind, lapply(x, rbind)) %>%
-#   #   rename_with(~ gsub("\\.([0-9]+$)", "__\\1", .x)) %>%
-#   #   rename_with(~gsub("$", "__0", .x), matches("[a-z]([0-9]+)?$")) %>%
-#   #   pivot_longer(
-#   #     everything(),
-#   #     names_to =c(".value", "ind"),
-#   #     names_pattern = "(^.*)(__[0-9]+$)"
-#   #   ) %>%
-#   #   mutate(across(ind, ~ gsub("__", "", .x) %>% as.numeric)) %>%
-#   #   select(timestamp, everything()) %>%
-#   #   mutate(across(c(timestamp, timestamp_local), ~lubridate::parse_date_time(.x, "Y-mdH:M:S"))) %>%
-#   #   arrange(across(timestamp)) %>%
-#   #   select(-ind)
+    as.data.frame() %>%
+    unnest_all() %>%
+    dplyr::rename_with(~gsub("_1$", "", .x)) %>%
+    mutate(across(starts_with("timestamp"), ~lubridate::ymd_hms(.x)))
 }
 

@@ -87,7 +87,7 @@ paginate <- function(response_content, verb = httr::GET){
   all_data <- response_content$data
   next_url <- response_content$meta$next_url
 
-  #keep getting the next page while a new page exists, and append that page's data
+  #keep getting the next page while a new page exists, and append every new page's data
   while(!is.null(next_url)){
     this_query <- parse_url(next_url)$query
 
@@ -103,7 +103,7 @@ paginate <- function(response_content, verb = httr::GET){
 
 #' Handle requests params
 #'
-#' Format the parameters that can be passed to requests.
+#' Format the parameters that can be passed to \code{requests()}.
 #'
 #' @importFrom stringr str_split
 #'
@@ -117,6 +117,7 @@ format_params <- function(...){
   filter <- stringr::str_split(kwargs$filter, ";")
 
   # TODO: set default per_page to 100?
+  # TODO: give some warning when passed params are not recognized?
 
   if("start" %in% names(kwargs)){
     filter <- c(filter,paste0("timestamp,ge,", kwargs$start))
@@ -126,6 +127,11 @@ format_params <- function(...){
   if("stop" %in% names(kwargs)){
     filter <- c(filter,paste0("timestamp,le,", kwargs$stop))
     kwargs$stop <- NULL
+  }
+
+  if('sort' %in% names(kwargs)){
+
+
   }
 
   # format the filter string. If it's not empty, add it to kwargs

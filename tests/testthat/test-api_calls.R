@@ -51,6 +51,27 @@ test_that("request GET with timestamp filter returns appropriate timestamps", {
   expect_true(lubridate::`%within%`(last_sample_timestamp,expected_interval))
 })
 
+test_that("request GET with sort option returns appropriately sorted timestamps",{
+  r <- request("devices/MOD-PM-00808/data/",
+               qs_params = list(sort = "timestamp,asc", limit = 10))
+
+  first_sample_timestamp <- lubridate::ymd_hms(r$data[[1]]$timestamp)
+  second_sample_timestamp <- lubridate::ymd_hms(r$data[[2]]$timestamp)
+  penultimate_sample_timestamp <- lubridate::ymd_hms(r$data[[length(r$data) - 1]]$timestamp)
+  last_sample_timestamp <- lubridate::ymd_hms(r$data[[length(r$data)]]$timestamp)
+
+  expect_true(first_sample_timestamp <= second_sample_timestamp)
+  expect_true(first_sample_timestamp <= last_sample_timestamp)
+
+  expect_true(second_sample_timestamp <= penultimate_sample_timestamp)
+  expect_true(second_sample_timestamp <= last_sample_timestamp)
+
+  expect_true(penultimate_sample_timestamp <= last_sample_timestamp)
+
+  expect_false(is.unsorted(c(first_sample_timestamp, second_sample_timestamp, penultimate_sample_timestamp, last_sample_timestamp)))
+  expect_true(is.unsorted(c(second_sample_timestamp, first_sample_timestamp, last_sample_timestamp, penultimate_sample_timestamp)))
+})
+
 #-------------- paginate()
 
 test_that("paginate returns proper size data when given multiple pages", {
@@ -70,7 +91,7 @@ test_that("paginate returns proper size when given one page", {
 })
 
 test_that("all the data in a paginate call with a timestamp filtered request gives appropriate timestamps", {
-  earliest_string <- "2023-08-06T00:00:00"
+  earliest_string <- "2023-08-06T20:00:00"
   latest_string <- "2023-08-06T22:06:00"
 
   r <- request("devices/MOD-PM-00808/data/",
@@ -124,14 +145,11 @@ test_that("format_params with both start and stop formats correctly", {
 
 #-------------- requests()
 
-# test_that("requests for things other than /data/ return what we expect",{
-#   r <- requests("devices/MOD-PM-00808")
-#
-#
-#
-# })
+test_that("requests for something other than data with only one page returns as expected", {
+  x <- requests("teams")
 
-# test_that("requests for things with only one element returns the same structure as things with multiple elements")
+  expect_true(is.list(x))
+})
 
 test_that("requests for data with only one page returns a simple request", {
   this_limit <- 10
@@ -139,6 +157,14 @@ test_that("requests for data with only one page returns a simple request", {
   x <- requests("devices/MOD-PM-00808/data/", limit = this_limit)
 
   expect_equal(length(x), this_limit)
+})
+
+test_that("data requests that return only one datapoint are same structure as things with multiple elements",{
+  x <- requests("devices/MOD-PM-00808/data/", limit = 1)
+  y <- requests("devices/MOD-PM-00808/data/")
+
+  expect_identical(class(x), class(y))
+  expect_equal(length(x), length(y))
 })
 
 test_that("requests with start/stop returns data from the expected timestamp ranges", {
@@ -155,7 +181,3 @@ test_that("requests with start/stop returns data from the expected timestamp ran
   expect_true(lubridate::`%within%`(last_sample_timestamp,expected_interval))
 })
 
-
-# TODO:
-# testthat("when passing sort=asc or sort=desc, the first and last timestamps are greater than or less than all other timestamps, as appropriate")
-# (or, see if there's some function that checks sorting like ff::is.sorted() )

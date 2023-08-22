@@ -122,18 +122,22 @@ get_data <- function(sn, ...){
     class = "device_data"
   )
 }
-
+#' A convenience function for \code{get_data()} to unnest recursively nested data frames.
+#' @importFrom dplyr select where unnest_wider
+#'
+#' @param df A recursively-nested data frame
+#'
+#' @returns A flattened data frame, one row per observation
+#'
 unnest_all <- function(df) {
-  list_columns <- df %>% dplyr::select(where(is.list)) %>% names
+  list_columns <- df %>% select(where(is.list)) %>% names
 
   if (length(list_columns) == 0) {
     return(df)
   }
 
   for (list_column in list_columns) {
-    df <-
-      df %>%
-      unnest_wider(list_column, names_sep = "_")
+    df <- df %>% unnest_wider(list_column, names_sep = "_")
   }
   unnest_all(df)
 }
@@ -157,7 +161,6 @@ as.data.frame.device_data <- function(x, ...){
   do.call(rbind, lapply(x, rbind)) %>%
     as.data.frame() %>%
     unnest_all() %>%
-    dplyr::rename_with(~gsub("_1$", "", .x)) %>%
+    dplyr::rename_with(~gsub("_1$", "", .x)) %>% # remove "_1" suffix for all columns
     mutate(across(starts_with("timestamp"), ~lubridate::ymd_hms(.x)))
 }
-

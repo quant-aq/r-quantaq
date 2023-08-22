@@ -4,7 +4,7 @@
 \alias{authenticate_client}
 \title{Authenticate API connection}
 \usage{
-authenticate_client()
+authenticate_client(verbose = FALSE)
 }
 \description{
 Confirms API authentication

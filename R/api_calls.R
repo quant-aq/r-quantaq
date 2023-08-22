@@ -152,17 +152,18 @@ format_params <- function(...){
 #'
 requests <- function(endpoint, verb = httr::GET, ...){
   kwargs <- format_params(...)
-
   r <- request(endpoint, verb = verb, qs_params = kwargs)
+
+  this_data <- r
 
   pages <- r$meta
   if(!is.null(pages)){
-    if(!is.null(pages$next_url) & pages$page != pages$pages){
-      data <- paginate(r)
+    if(!is.null(pages$next_url) & pages$page != pages$pages){ # if next_url exists and we're not on the last page
+      this_data <- paginate(r)
     } else {
-      data <- r$data
+      this_data <- r$data
     }
   }
 
-  return(data)
+  return(this_data)
 }

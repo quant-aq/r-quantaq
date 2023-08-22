@@ -38,6 +38,7 @@ test_that("request GET with limit returns appropriate amount", {
 
 test_that("request GET with timestamp filter returns appropriate timestamps", {
   earliest_string <- "2023-08-06T22:00:00"
+  latest_string <- "2023-08-06T22:06:00"
 
   r <- request("devices/MOD-PM-00808/data/",
                qs_params = list(filter = paste0("timestamp,ge,", earliest_string, ";timestamp,le,", latest_string)))
@@ -46,8 +47,8 @@ test_that("request GET with timestamp filter returns appropriate timestamps", {
   last_sample_timestamp <- lubridate::ymd_hms(r$data[[length(r$data)]]$timestamp)
   expected_interval <- lubridate::interval(lubridate::ymd_hms(earliest_string), lubridate::ymd_hms(latest_string))
 
-  expect_true(first_sample_timestamp %within% expected_interval)
-  expect_true(last_sample_timestamp %within% expected_interval)
+  expect_true(lubridate::`%within%`(first_sample_timestamp,expected_interval))
+  expect_true(lubridate::`%within%`(last_sample_timestamp,expected_interval))
 })
 
 #-------------- paginate()
@@ -81,8 +82,8 @@ test_that("all the data in a paginate call with a timestamp filtered request giv
   last_sample_timestamp <- lubridate::ymd_hms(all_data[[1]]$timestamp)
   expected_interval <- lubridate::interval(lubridate::ymd_hms(earliest_string), lubridate::ymd_hms(latest_string))
 
-  expect_true(first_sample_timestamp %within% expected_interval)
-  expect_true(last_sample_timestamp %within% expected_interval)
+  expect_true(lubridate::`%within%`(first_sample_timestamp,expected_interval))
+  expect_true(lubridate::`%within%`(last_sample_timestamp,expected_interval))
 })
 
 #-------------- format_params()
@@ -123,13 +124,38 @@ test_that("format_params with both start and stop formats correctly", {
 
 #-------------- requests()
 
-test_that("requests for data with only one page short circuits to a simple request", {
-  x <- requests("devices/MOD-PM-00808/data/", limit = 10)
+# test_that("requests for things other than /data/ return what we expect",{
+#   r <- requests("devices/MOD-PM-00808")
+#
+#
+#
+# })
 
+# test_that("requests for things with only one element returns the same structure as things with multiple elements")
+
+test_that("requests for data with only one page returns a simple request", {
+  this_limit <- 10
+
+  x <- requests("devices/MOD-PM-00808/data/", limit = this_limit)
+
+  expect_equal(length(x), this_limit)
 })
 
 test_that("requests with start/stop returns data from the expected timestamp ranges", {
-  x <- requests("devices/MOD-PM-00808/data/", start = "2023-08-06T00:00:00", stop = "2023-08-06T22:06:00")
+  earliest_string <- "2023-08-06 22:00:00"
+  latest_string <- "2023-08-06 22:06:00"
 
-  x[[1]]$timestamp
+  x <- requests("devices/MOD-PM-00808/data/", start = earliest_string, stop = latest_string)
+
+  first_sample_timestamp <- lubridate::ymd_hms(x[[length(x)]]$timestamp)
+  last_sample_timestamp <- lubridate::ymd_hms(x[[1]]$timestamp)
+  expected_interval <- lubridate::interval(lubridate::ymd_hms(earliest_string), lubridate::ymd_hms(latest_string))
+
+  expect_true(lubridate::`%within%`(first_sample_timestamp,expected_interval))
+  expect_true(lubridate::`%within%`(last_sample_timestamp,expected_interval))
 })
+
+
+# TODO:
+# testthat("when passing sort=asc or sort=desc, the first and last timestamps are greater than or less than all other timestamps, as appropriate")
+# (or, see if there's some function that checks sorting like ff::is.sorted() )

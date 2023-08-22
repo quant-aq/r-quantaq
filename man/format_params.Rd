@@ -7,7 +7,7 @@
 format_params(...)
 }
 \arguments{
-\item{...}{Parameters to be passed to the request.}
+\item{...}{Parameters to be translated to query string and passed to the request.}
 }
 \value{
 A named list of query params.

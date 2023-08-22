@@ -15,7 +15,10 @@ Imports:
   stringr,
   dplyr,
   rstudioapi,
-  lubridate
+  lubridate,
+  purrr,
+  magrittr,
+  tidyr
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3

@@ -52,7 +52,7 @@ setup_client <- function(api_type = 'prod', version = 'v1', api_key = NULL, verb
 #'
 #' @details
 #' A helper function that retrieves the API details set as environment variables
-#' by \code{\link{setup_client()}}.
+#' by \code{\link{setup_client}()}.
 #'
 #' @export
 access_client <- function(){

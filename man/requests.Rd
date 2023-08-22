@@ -11,7 +11,7 @@ requests(endpoint, verb = httr::GET, ...)
 
 \item{verb}{The httr function corresponding to the HTTP verb. Defaults to GET.}
 
-\item{...}{Parameters}
+\item{...}{Params to be translated to query string.}
 }
 \value{
 Parsed data from the API.

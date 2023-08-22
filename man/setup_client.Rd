@@ -4,7 +4,12 @@
 \alias{setup_client}
 \title{Setup the API client}
 \usage{
-setup_client(api_type = "prod", version = "v1", api_key = NULL)
+setup_client(
+  api_type = "prod",
+  version = "v1",
+  api_key = NULL,
+  verbose = FALSE
+)
 }
 \arguments{
 \item{api_type}{(Optional) A character string containing the API type -- 'prod' or 'dev' -- which determines the base url. Defaults to 'prod'.}

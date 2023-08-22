@@ -4,14 +4,14 @@
 \alias{request}
 \title{Complete an API request}
 \usage{
-request(endpoint, verb = httr::GET, ...)
+request(endpoint, verb = httr::GET, qs_params = NULL)
 }
 \arguments{
 \item{endpoint}{A character string of the API endpoint to request.}
 
 \item{verb}{The httr function corresponding to the HTTP verb. Defaults to GET.}
 
-\item{...}{Query string parameters.}
+\item{qs_params}{Query string parameters.}
 }
 \value{
 The parsed JSON from the API, including both data and metadata.

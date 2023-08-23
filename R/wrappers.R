@@ -19,7 +19,6 @@ unnest_all <- function(df) {
   unnest_all(df)
 }
 
-
 #' Get the user's account information
 #'
 #' @returns The user's account information
@@ -31,7 +30,7 @@ whoami <- function(){
   )
 }
 
-#' Convert account class to data.frame
+#' Coerce accounts class to data.frame
 #'
 #' @importFrom dplyr mutate
 #' @importFrom lubridate parse_date_time
@@ -72,7 +71,9 @@ as.data.frame.teams <- function(x, ...){
 #' Get the user's devices
 #'
 #' @param sn A device serial number
-#' @param ... Named arguments
+#' @param limit (Optional) The number of devices to return
+#' @param sort (Optional) A parameter upon which to sort, and the sort method (ascending or descending), formatted as "parameter,order", e.g. "id,asc"
+#'
 #' @returns The user's device information
 #' @export
 get_devices <- function(sn = NULL, ...){
@@ -127,12 +128,14 @@ as.data.frame.devices <- function(x, ...){
 #' @param sort (Optional) A data variable upon which to sort, and the sort method (ascending or descending), formatted as "parameter,order", e.g. "timestamp,asc"
 #' @param raw (Optional) Returns the raw data. Currently only available to developers and admins.
 #'
+#' @returns The specified device data
+#'
 #' @examples
 #' \dontrun{
-#' get_data(sn = "MOD-PM-00808", limit = 100)
-#' get_data(sn = "MOD-PM-00808", start = "2020-01-01 21:54", stop = "2023-03-03 05:47")
-#' get_data(sn = "MOD-PM-00808", filter = "device_state,eq,ACTIVE")
-#' get_data(sn = "MOD-PM-00808", sort = "timestamp,asc")
+#'   get_data(sn = "MOD-PM-00808", limit = 100)
+#'   get_data(sn = "MOD-PM-00808", start = "2020-01-01 21:54", stop = "2023-03-03 05:47")
+#'   get_data(sn = "MOD-PM-00808", filter = "device_state,eq,ACTIVE")
+#'   get_data(sn = "MOD-PM-00808", sort = "timestamp,asc")
 #' }
 #'
 #' @export
@@ -149,11 +152,10 @@ get_data <- function(sn, ...){
   )
 }
 
-#' Converts the device data class to a data.frame.
+#' Coerce device data to a data.frame
 #'
 #' @importFrom dplyr rename_with
 #' @importFrom lubridate parse_date_time ymd_hms
-#'
 #'
 #' @param data The data returned from \code{\link{get_data()}}.
 #'
@@ -172,7 +174,11 @@ as.data.frame.device_data <- function(x, ...){
     select(timestamp, everything())
 }
 
-#' Gets log data for device with
+#' Get device log data.
+#'
+#' @param sn Device serial number
+#' @param ... Named arguments
+#' @returns Data logs
 get_logs <- function(sn, ...){
   structure(
     requests(paste("log", sn, sep = "/"), ...),
@@ -181,6 +187,9 @@ get_logs <- function(sn, ...){
 }
 
 #' Get device calibration models
+#'
+#' @param sn Device serial number
+#' @returns Device calibration models
 #' @export
 get_models <- function(sn, ...){
   structure(
@@ -189,7 +198,10 @@ get_models <- function(sn, ...){
   )
 }
 
-#' Coerce calibration_models class to data.frame
+#' Coerce calibration models to data.frame
+#'
+#' @param x The calibration_models class returned by \link{\code{get_models()}}
+#' @returns A data.frame of calibration_models
 #' @export
 as.data.frame.calibration_models <- function(x, ...){
   do.call(rbind, lapply(x,rbind)) %>%

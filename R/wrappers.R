@@ -195,5 +195,12 @@ as.data.frame.calibration_models <- function(x, ...){
   do.call(rbind, lapply(x,rbind)) %>%
     as.data.frame %>%
     unnest_all() %>%
-    dplyr::rename_with(~gsub("_1$", "", .x)) # remove "_1" suffix for all columns
+    dplyr::rename_with(~gsub("_1$", "", .x)) %>%  # remove "_1" suffix for all columns
+    rename("model_features_1" = "model_features") %>%
+    pivot_longer(
+      tidyr::matches("model_(features|params)"),
+      names_pattern = "model_(features|params)_([a-z0-9_]+)",
+      names_to = c("element", "element_id"),
+      values_transform = as.character
+    )
 }

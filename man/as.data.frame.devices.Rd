@@ -7,13 +7,13 @@
 \method{as.data.frame}{devices}(x, ...)
 }
 \arguments{
-\item{x}{The devices class returned by \code{get_devices()}}
+\item{x}{The devices class returned by \code{\link[=get_devices]{get_devices()}}}
+
+\item{...}{Placeholder for passing through to as.data.frame.default}
 }
 \value{
-The data from \code{get_devices()} in data.frame format
-
-A data.frame containing the devices information
+A data.frame of device information
 }
 \description{
-Converts the class returned by \code{\link{get_devices}()} to a data.frame.
+Converts the class returned by \code{\link[=get_devices]{get_devices()}} to a data.frame.
 }

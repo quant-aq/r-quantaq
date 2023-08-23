@@ -2,16 +2,18 @@
 % Please edit documentation in R/wrappers.R
 \name{as.data.frame.device_data}
 \alias{as.data.frame.device_data}
-\title{Converts the device data class to a data.frame.}
+\title{Coerce device data to a data.frame}
 \usage{
 \method{as.data.frame}{device_data}(x, ...)
 }
 \arguments{
-\item{data}{The data returned from \code{\link{get_data()}}.}
+\item{x}{The data returned from \code{\link[=get_data]{get_data()}}.}
+
+\item{...}{Placeholder for passing through to as.data.frame.default}
 }
 \value{
-The data from \code{get_data()} in data.frame format.
+A data.frame of device data
 }
 \description{
-Converts the device data class to a data.frame.
+Coerce device data to a data.frame
 }

@@ -7,9 +7,9 @@
 paginate(response_content, verb = httr::GET)
 }
 \arguments{
-\item{verb}{The httr function corresponding to the HTTP verb. Defaults to GET.}
+\item{response_content}{Content from a \code{\link{request}()}}
 
-\item{request}{Content from a \code{\link{request()}}}
+\item{verb}{The httr function corresponding to the HTTP verb. Defaults to GET.}
 }
 \value{
 All collated pages of the data.

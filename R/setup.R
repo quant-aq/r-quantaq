@@ -8,10 +8,9 @@
 #' @importFrom dplyr case_when
 #'
 #' @param api_type (Optional) A character string containing the API type -- 'prod' or 'dev' -- which determines the base url. Defaults to 'prod'.
-#'
 #' @param api_key (Optional) A character string containing your QuantAQ API key. If left NULL, user will be prompted for it during execution.
-#'
 #' @param version (Optional) A character string containing the API version you're querying. Defaults to 'v1'.
+#' @param verbose (Optional) Default FALSE. Whether you want a message printed upon API connection.
 #'
 #' @returns No return value. Sets API details as environment variables.
 #'
@@ -52,7 +51,7 @@ setup_client <- function(api_type = 'prod', version = 'v1', api_key = NULL, verb
 #'
 #' @details
 #' A helper function that retrieves the API details set as environment variables
-#' by \code{\link{setup_client}()}.
+#' by [setup_client()].
 #'
 #' @export
 access_client <- function(){
@@ -72,14 +71,13 @@ access_client <- function(){
 
 #' Authenticate API connection
 #'
-#' @description
-#' Confirms API authentication
+#' A helper function for [setup_client()] to determine that the user-provided
+#' API details yields a proper connection with the API.
 #'
 #' @import httr
+#' @param verbose (Optional) Default FALSE. Whether you want a message printed upon API connection.
 #'
-#' @details
-#' A helper function for `client_setup()` to determine that the user-provided
-#' API details yields a proper connection with the API.
+#' @returns No return value. If verbose == TRUE, prints message upon successful API connection.
 #'
 authenticate_client <- function(verbose = FALSE){
   client <- access_client()

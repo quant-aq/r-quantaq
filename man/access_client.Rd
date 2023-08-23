@@ -11,5 +11,5 @@ Retrieves the relevant client variables
 }
 \details{
 A helper function that retrieves the API details set as environment variables
-by \code{\link{setup_client}()}.
+by \code{\link[=setup_client]{setup_client()}}.
 }

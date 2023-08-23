@@ -17,6 +17,8 @@ setup_client(
 \item{version}{(Optional) A character string containing the API version you're querying. Defaults to 'v1'.}
 
 \item{api_key}{(Optional) A character string containing your QuantAQ API key. If left NULL, user will be prompted for it during execution.}
+
+\item{verbose}{(Optional) Default FALSE. Whether you want a message printed upon API connection.}
 }
 \value{
 No return value. Sets API details as environment variables.

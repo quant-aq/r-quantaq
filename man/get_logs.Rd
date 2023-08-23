@@ -2,10 +2,18 @@
 % Please edit documentation in R/wrappers.R
 \name{get_logs}
 \alias{get_logs}
-\title{Gets log data for device with}
+\title{Get device log data.}
 \usage{
 get_logs(sn, ...)
 }
+\arguments{
+\item{sn}{Device serial number}
+
+\item{...}{Named arguments}
+}
+\value{
+Data logs
+}
 \description{
-Gets log data for device with
+Get device log data.
 }

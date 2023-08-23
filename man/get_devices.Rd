@@ -4,12 +4,16 @@
 \alias{get_devices}
 \title{Get the user's devices}
 \usage{
-get_devices(sn = NULL, ...)
+get_devices(..., sn = NULL, limit = NULL, sort = NULL)
 }
 \arguments{
+\item{...}{not used for values, forces later arguments to bind by name}
+
 \item{sn}{A device serial number}
 
-\item{...}{Named arguments}
+\item{limit}{(optional) The number of devices to return}
+
+\item{sort}{(optional) A parameter upon which to sort, and the sort method (ascending or descending), formatted as "parameter,order", e.g. "id,asc"}
 }
 \value{
 The user's device information

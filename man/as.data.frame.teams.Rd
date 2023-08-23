@@ -7,10 +7,12 @@
 \method{as.data.frame}{teams}(x, ...)
 }
 \arguments{
-\item{x}{The teams class returned by \link{\code{get_teams()}}}
+\item{x}{The teams class returned by \code{\link[=get_teams]{get_teams()}}}
+
+\item{...}{Placeholder for passing through to as.data.frame.default}
 }
 \value{
-A data.frame containing the teams information
+A data.frame of teams information
 }
 \description{
 Converts teams information to data.frame

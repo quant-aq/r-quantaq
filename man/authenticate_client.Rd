@@ -6,10 +6,13 @@
 \usage{
 authenticate_client(verbose = FALSE)
 }
-\description{
-Confirms API authentication
+\arguments{
+\item{verbose}{(Optional) Default FALSE. Whether you want a message printed upon API connection.}
 }
-\details{
-A helper function for \code{client_setup()} to determine that the user-provided
+\value{
+No return value. If verbose == TRUE, prints message upon successful API connection.
+}
+\description{
+A helper function for \code{\link[=setup_client]{setup_client()}} to determine that the user-provided
 API details yields a proper connection with the API.
 }

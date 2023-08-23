@@ -2,16 +2,18 @@
 % Please edit documentation in R/wrappers.R
 \name{as.data.frame.account}
 \alias{as.data.frame.account}
-\title{Convert account class to data.frame}
+\title{Coerce accounts class to data.frame}
 \usage{
 \method{as.data.frame}{account}(x, ...)
 }
 \arguments{
-\item{x}{The account class returned by \code{\link{whoami()}}}
+\item{x}{The account class returned by \code{\link[=whoami]{whoami()}}}
+
+\item{...}{Placeholder for passing through to as.data.frame.default}
 }
 \value{
-A data.frame containing the user's account information
+A data.frame of the user's account information
 }
 \description{
-Convert account class to data.frame
+Coerce accounts class to data.frame
 }

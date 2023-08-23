@@ -2,44 +2,51 @@
 % Please edit documentation in R/wrappers.R
 \name{get_data}
 \alias{get_data}
-\title{#' Get device metadata
-#'
-#' @param sn Device serial number
-#' @returns The device metadata
-get_device_metadata <- function(sn){
-structure(
-requests(paste("meta-data", sn, sep="/")),
-class = "metadata"
-)
-}
-Get device data}
+\title{Get device data}
 \usage{
-get_data(sn, ...)
+get_data(
+  sn,
+  ...,
+  limit = NULL,
+  start = NULL,
+  stop = NULL,
+  filter = NULL,
+  sort = NULL,
+  raw = FALSE,
+  by_date = NULL
+)
 }
 \arguments{
 \item{sn}{A device serial number}
 
-\item{limit}{(Optional) The number of data points to return}
+\item{...}{not used for values, forces later arguments to bind by name}
 
-\item{start}{(Optional) The earliest date to retrieve data from. Should be a timestamp string of the form "YYYY-MM-DD HH:MM:SS"}
+\item{limit}{(optional) The number of data points to return}
 
-\item{stop}{(Optional) The latest date to retrieve data from. Should be a timestamp string of the form "YYYY-MM-DD HH:MM:SS"}
+\item{start}{(optional) The earliest date to retrieve data from. Should be a timestamp string of the form "YYYY-MM-DD HH:MM:SS"}
 
-\item{filter}{(Optional) A string providing filter parameters, see below examples and \href{https://docs.quant-aq.com/api#8e14edbf9dee4162a04f729ce022cb4b}{API documentation} for more information.}
+\item{stop}{(optional) The latest date to retrieve data from. Should be a timestamp string of the form "YYYY-MM-DD HH:MM:SS"}
 
-\item{sort}{(Optional) A data variable upon which to sort, and the sort method (ascending or descending), formatted as "parameter,order", e.g. "timestamp,asc"}
+\item{filter}{(optional) A string providing filter parameters, see below examples and \href{https://docs.quant-aq.com/api#8e14edbf9dee4162a04f729ce022cb4b}{API documentation} for more information.}
 
-\item{raw}{(Optional) Returns the raw data. Currently only available to developers and admins.}
+\item{sort}{(optional) A data variable upon which to sort, and the sort method (ascending or descending), formatted as "parameter,order", e.g. "timestamp,asc"}
+
+\item{raw}{(optional) Returns the raw data. Currently only available to developers and admins.}
+
+\item{by_date}{(optional) A date for which to return data. Must be in format "YYYY-MM-DD".}
+}
+\value{
+The specified device data
 }
 \description{
 Get data according to provided serial number and other parameters.
 }
 \examples{
 \dontrun{
-get_data(sn = "MOD-PM-00808", limit = 100)
-get_data(sn = "MOD-PM-00808", start = "2020-01-01 21:54", stop = "2023-03-03 05:47")
-get_data(sn = "MOD-PM-00808", filter = "device_state,eq,ACTIVE")
-get_data(sn = "MOD-PM-00808", sort = "timestamp,asc")
+  get_data(sn = "MOD-PM-00808", limit = 100)
+  get_data(sn = "MOD-PM-00808", start = "2020-01-01 21:54", stop = "2023-03-03 05:47")
+  get_data(sn = "MOD-PM-00808", filter = "device_state,eq,ACTIVE")
+  get_data(sn = "MOD-PM-00808", sort = "timestamp,asc")
 }
 
 }

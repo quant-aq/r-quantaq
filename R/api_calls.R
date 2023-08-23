@@ -25,11 +25,10 @@ build_api_url <- function(endpoint, qs_params = NULL){
 #' Generate an API request given endpoint, http verb, and any relevant query parameters.
 #'
 #' @importFrom httr GET
+#' @importFrom jsonlite fromJSON
 #'
 #' @param endpoint A character string of the API endpoint to request.
-#'
 #' @param verb The httr function corresponding to the HTTP verb. Defaults to GET.
-#'
 #' @param qs_params Query string parameters.
 #'
 #' @examples
@@ -77,8 +76,7 @@ request <- function(endpoint, verb = httr::GET, qs_params = NULL){
 #'
 #' @importFrom httr GET
 #'
-#' @param request Content from a \code{\link{request()}}
-#'
+#' @param response_content Content from a \code{\link{request}()}
 #' @param verb The httr function corresponding to the HTTP verb. Defaults to GET.
 #'
 #' @returns All collated pages of the data.

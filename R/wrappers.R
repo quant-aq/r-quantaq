@@ -1,20 +1,21 @@
 #' A convenience function to unnest recursively nested data frames.
 #' @importFrom dplyr select where
 #' @importFrom tidyr unnest_wider
+#' @importFrom magrittr `%>%`
 #'
 #' @param df A recursively-nested data frame
 #'
 #' @returns A flattened data frame, one row per observation
 #'
 unnest_all <- function(df) {
-  list_columns <- df %>% dplyr::select(dplyr::where(is.list)) %>% names
+  list_columns <- df %>% select(where(is.list)) %>% names
 
   if (length(list_columns) == 0) {
     return(df)
   }
 
   for (list_column in list_columns) {
-    df <- df %>% tidyr::unnest_wider(list_column, names_sep = "_")
+    df <- df %>% unnest_wider(list_column, names_sep = "_")
   }
   unnest_all(df)
 }
@@ -32,15 +33,18 @@ whoami <- function(){
 
 #' Coerce accounts class to data.frame
 #'
-#' @importFrom dplyr mutate
+#' @importFrom magrittr `%>%`
+#' @importFrom dplyr mutate across
+#' @importFrom lubridate parse_date_time
 #' @importFrom lubridate parse_date_time
 #'
-#' @param x The account class returned by \code{\link{whoami()}}
-#' @returns A data.frame containing the user's account information
+#' @param x The account class returned by [whoami()]
+#' @param ... Placeholder for passing through to as.data.frame.default
+#' @returns A data.frame of the user's account information
 #' @export
 as.data.frame.account <- function(x, ...){
   rbind("1" = x) %>% as.data.frame %>%
-    dplyr::mutate(dplyr::across(c(last_seen, member_since), ~lubridate::parse_date_time(.x, "Ymd H:M:S.")))
+    mutate(across(c("last_seen", "member_since"), ~parse_date_time(.x, "Ymd H:M:S.")))
 }
 
 #' Get the user's teams information.
@@ -57,8 +61,11 @@ get_teams <- function(id = NULL){
 
 #' Converts teams information to data.frame
 #'
-#' @param x The teams class returned by \link{\code{get_teams()}}
-#' @returns A data.frame containing the teams information
+#' @importFrom magrittr `%>%`
+#'
+#' @param x The teams class returned by [get_teams()]
+#' @param ... Placeholder for passing through to as.data.frame.default
+#' @returns A data.frame of teams information
 #' @export
 as.data.frame.teams <- function(x, ...){
   if(!is.null(names(x))){ # if x has names, then there is only one team returned
@@ -70,27 +77,35 @@ as.data.frame.teams <- function(x, ...){
 
 #' Get the user's devices
 #'
+#' @importFrom httr GET
+#' @importFrom wrapr stop_if_dot_args
+#'
 #' @param sn A device serial number
-#' @param limit (Optional) The number of devices to return
-#' @param sort (Optional) A parameter upon which to sort, and the sort method (ascending or descending), formatted as "parameter,order", e.g. "id,asc"
+#' @param ... not used for values, forces later arguments to bind by name
+#' @param limit (optional) The number of devices to return
+#' @param sort (optional) A parameter upon which to sort, and the sort method (ascending or descending), formatted as "parameter,order", e.g. "id,asc"
 #'
 #' @returns The user's device information
 #' @export
-get_devices <- function(sn = NULL, ...){
+get_devices <- function(..., sn = NULL, limit = NULL, sort = NULL){
+  # wrapr::stop_if_dot_args(substitute(list(...)), "get_devices")
+
   structure(
-    requests(paste("devices", sn, sep = "/"), ...),
+    requests(paste("devices", sn, sep = "/"), verb = httr::GET, limit = limit, sort = sort),
     class = "devices"
   )
 }
 
 #' Coerce the devices class to a data.frame
 #'
-#' Converts the class returned by \code{\link{get_devices}()} to a data.frame.
+#' Converts the class returned by [get_devices()] to a data.frame.
 #'
+#' @importFrom magrittr `%>%`
 #' @importFrom tidyr unnest unnest_wider
-#' @param x The devices class returned by \code{get_devices()}
-#' @returns The data from \code{get_devices()} in data.frame format
-#' @returns A data.frame containing the devices information
+#' @importFrom dplyr rename_with
+#' @param x The devices class returned by [get_devices()]
+#' @param ... Placeholder for passing through to as.data.frame.default
+#' @returns A data.frame of device information
 #' @export
 as.data.frame.devices <- function(x, ...){
   if(!is.null(names(x))){ # if x has names, then there's only one device returned
@@ -100,35 +115,38 @@ as.data.frame.devices <- function(x, ...){
   out_df <- do.call(rbind, lapply(x, rbind)) %>%
     as.data.frame %>%
     unnest_all() %>%
-    dplyr::rename_with(~gsub("_1$", "", .x))
+    rename_with(~gsub("_1$", "", .x))
 
   return(out_df)
 }
 
-#' #' Get device metadata
-#' #'
-#' #' @param sn Device serial number
-#' #' @returns The device metadata
-#' get_device_metadata <- function(sn){
-#'   structure(
-#'     requests(paste("meta-data", sn, sep="/")),
-#'     class = "metadata"
-#'   )
-#' }
+#' Get device metadata
+#'
+#' @param sn Device serial number
+#' @returns The device metadata
+get_device_metadata <- function(sn){
+  structure(
+    requests(paste("meta-data", sn, sep="/")),
+    class = "metadata"
+  )
+}
 
 #' Get device data
 #'
 #' Get data according to provided serial number and other parameters.
 #'
-#' @param sn A device serial number
-#' @param limit (Optional) The number of data points to return
-#' @param start (Optional) The earliest date to retrieve data from. Should be a timestamp string of the form "YYYY-MM-DD HH:MM:SS"
-#' @param stop (Optional) The latest date to retrieve data from. Should be a timestamp string of the form "YYYY-MM-DD HH:MM:SS"
-#' @param filter (Optional) A string providing filter parameters, see below examples and \href{https://docs.quant-aq.com/api#8e14edbf9dee4162a04f729ce022cb4b}{API documentation} for more information.
-#' @param sort (Optional) A data variable upon which to sort, and the sort method (ascending or descending), formatted as "parameter,order", e.g. "timestamp,asc"
-#' @param raw (Optional) Returns the raw data. Currently only available to developers and admins.
+#' @importFrom httr GET
+#' @importFrom wrapr stop_if_dot_args
 #'
-#' @returns The specified device data
+#' @param sn A device serial number
+#' @param ... not used for values, forces later arguments to bind by name
+#' @param limit (optional) The number of data points to return
+#' @param start (optional) The earliest date to retrieve data from. Should be a timestamp string of the form "YYYY-MM-DD HH:MM:SS"
+#' @param stop (optional) The latest date to retrieve data from. Should be a timestamp string of the form "YYYY-MM-DD HH:MM:SS"
+#' @param filter (optional) A string providing filter parameters, see below examples and \href{https://docs.quant-aq.com/api#8e14edbf9dee4162a04f729ce022cb4b}{API documentation} for more information.
+#' @param sort (optional) A data variable upon which to sort, and the sort method (ascending or descending), formatted as "parameter,order", e.g. "timestamp,asc"
+#' @param raw (optional) Returns the raw data. Currently only available to developers and admins.
+#' @param by_date (optional) A date for which to return data. Must be in format "YYYY-MM-DD".
 #'
 #' @examples
 #' \dontrun{
@@ -138,28 +156,39 @@ as.data.frame.devices <- function(x, ...){
 #'   get_data(sn = "MOD-PM-00808", sort = "timestamp,asc")
 #' }
 #'
+#' @returns The specified device data
 #' @export
-get_data <- function(sn, ...){
+get_data <- function(sn, ..., limit = NULL, start = NULL, stop = NULL, filter = NULL, sort = NULL, raw = FALSE, by_date = NULL){
+  wrapr::stop_if_dot_args(substitute(list(...)), "get_data")
+
   endpoint <- paste("devices", sn, "data", sep = "/")
 
-  if(...length() > 0 && "raw" %in% ...names()){
-    endpoint = paste(endpoint, "raw/", sep= "/")
+  if(...length() > 0){
+    if("by_date" %in% ...names()){
+      endpoint <- paste(endpoint, "data-by-date/", by_date, sep= "/")
+    }
+
+    if("raw" %in% ...names()){
+      endpoint <- paste(endpoint, "raw/", sep= "/")
+    }
   }
 
   structure(
-    requests(endpoint, httr::GET, ...),
+    requests(endpoint, httr::GET, limit = limit, start = start, stop = stop, filter = filter, sort = sort),
     class = "device_data"
   )
 }
 
 #' Coerce device data to a data.frame
 #'
-#' @importFrom dplyr rename_with
-#' @importFrom lubridate parse_date_time ymd_hms
+#' @importFrom magrittr `%>%`
+#' @importFrom dplyr rename_with mutate across starts_with select everything
+#' @importFrom lubridate parse_date_time
 #'
-#' @param data The data returned from \code{\link{get_data()}}.
+#' @param x The data returned from [get_data()].
+#' @param ... Placeholder for passing through to as.data.frame.default
 #'
-#' @returns The data from \code{get_data()} in data.frame format.
+#' @returns A data.frame of device data
 #' @export
 as.data.frame.device_data <- function(x, ...){
   if(!is.null(names(x))){ # if x has names, then there's only one row of data returned
@@ -169,9 +198,9 @@ as.data.frame.device_data <- function(x, ...){
   do.call(rbind, lapply(x, rbind)) %>%
     as.data.frame() %>%
     unnest_all() %>%
-    dplyr::rename_with(~gsub("_1$", "", .x)) %>% # remove "_1" suffix for all columns
-    mutate(across(starts_with("timestamp"), ~lubridate::parse_date_time(.x, "Ymd H:M:S."))) %>%
-    select(timestamp, everything())
+    rename_with(~gsub("_1$", "", .x)) %>% # remove "_1" suffix for all columns
+    mutate(across(starts_with("timestamp"), ~parse_date_time(.x, "Ymd H:M:S."))) %>%
+    select("timestamp", everything())
 }
 
 #' Get device log data.
@@ -191,26 +220,31 @@ get_logs <- function(sn, ...){
 #' @param sn Device serial number
 #' @returns Device calibration models
 #' @export
-get_models <- function(sn, ...){
+get_models <- function(sn){
   structure(
-    requests(paste("calibration-models", sn, sep="/"), ...),
+    requests(paste("calibration-models", sn, sep="/")),
     class = 'calibration_models'
   )
 }
 
 #' Coerce calibration models to data.frame
 #'
-#' @param x The calibration_models class returned by \link{\code{get_models()}}
+#' @importFrom magrittr `%>%`
+#' @importFrom dplyr rename_with rename
+#' @importFrom tidyr pivot_longer matches
+#'
+#' @param x The calibration_models class returned by [get_models()]
+#' @param ... Placeholder for passing through to as.data.frame.default
 #' @returns A data.frame of calibration_models
 #' @export
 as.data.frame.calibration_models <- function(x, ...){
   do.call(rbind, lapply(x,rbind)) %>%
     as.data.frame %>%
     unnest_all() %>%
-    dplyr::rename_with(~gsub("_1$", "", .x)) %>%  # remove "_1" suffix for all columns
+    rename_with(~gsub("_1$", "", .x)) %>%  # remove "_1" suffix for all columns
     rename("model_features_1" = "model_features") %>%
     pivot_longer(
-      tidyr::matches("model_(features|params)"),
+      matches("model_(features|params)"),
       names_pattern = "model_(features|params)_([a-z0-9_]+)",
       names_to = c("element", "element_id"),
       values_transform = as.character

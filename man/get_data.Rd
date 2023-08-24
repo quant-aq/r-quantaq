@@ -4,24 +4,14 @@
 \alias{get_data}
 \title{Get device data}
 \usage{
-get_data(
-  sn,
-  ...,
-  limit = NULL,
-  start = NULL,
-  stop = NULL,
-  filter = NULL,
-  sort = NULL,
-  raw = FALSE,
-  by_date = NULL
-)
+get_data(sn, ...)
 }
 \arguments{
 \item{sn}{A device serial number}
 
-\item{...}{not used for values, forces later arguments to bind by name}
+\item{...}{Named arguments passed as query parameters (see limit, start, stop, etc.)}
 
-\item{limit}{(optional) The number of data points to return}
+\item{limit}{The number of data points to return}
 
 \item{start}{(optional) The earliest date to retrieve data from. Should be a timestamp string of the form "YYYY-MM-DD HH:MM:SS"}
 

@@ -4,12 +4,12 @@
 \alias{get_devices}
 \title{Get the user's devices}
 \usage{
-get_devices(..., sn = NULL, limit = NULL, sort = NULL)
+get_devices(sn = NULL, ...)
 }
 \arguments{
-\item{...}{not used for values, forces later arguments to bind by name}
-
 \item{sn}{A device serial number}
+
+\item{...}{Named arguments, passed as query parameters (see: limit, sort)}
 
 \item{limit}{(optional) The number of devices to return}
 

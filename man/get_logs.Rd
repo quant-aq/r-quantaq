@@ -4,12 +4,12 @@
 \alias{get_logs}
 \title{Get device log data.}
 \usage{
-get_logs(sn, ...)
+get_logs(sn, limit = NULL)
 }
 \arguments{
 \item{sn}{Device serial number}
 
-\item{...}{Named arguments}
+\item{limit}{(optional) The number of logs to return}
 }
 \value{
 Data logs

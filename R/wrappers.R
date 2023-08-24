@@ -140,8 +140,7 @@ get_device_metadata <- function(sn){
 #' @param stop (optional) The latest date to retrieve data from. Should be a timestamp string of the form "YYYY-MM-DD HH:MM:SS"
 #' @param filter (optional) A string providing filter parameters, see below examples and \href{https://docs.quant-aq.com/api#8e14edbf9dee4162a04f729ce022cb4b}{API documentation} for more information.
 #' @param sort (optional) A data variable upon which to sort, and the sort method (ascending or descending), formatted as "parameter,order", e.g. "timestamp,asc"
-#' @param raw (optional) Returns the raw data. Currently only available to developers and admins.
-#' @param by_date (optional) A date for which to return data. Must be in format "YYYY-MM-DD".
+#' @param raw (optional) Default FALSE. Returns the raw data. Currently only available to developers and admins.
 #'
 #' @examples
 #' \dontrun{
@@ -153,17 +152,10 @@ get_device_metadata <- function(sn){
 #'
 #' @returns The specified device data
 #' @export
-get_data <- function(sn, limit = NULL, start = NULL, stop = NULL, filter = NULL, sort = NULL, raw = NULL, by_date = NULL){
-  endpoint <- paste("devices", sn, sep="/")
+get_data <- function(sn, limit = NULL, start = NULL, stop = NULL, filter = NULL, sort = NULL, raw = FALSE){
+  endpoint <- paste("devices", sn, "data", sep="/")
 
-  if(!is.null(by_date)){
-    date <- paste0(by_date, "/")
-    endpoint <- paste(endpoint, "data-by-date", date, sep= "/")
-  } else {
-    endpoint <- paste(endpoint, "data", sep = "/")
-  }
-
-  if(!is.null(raw)){
+  if(raw){
     endpoint <- paste(endpoint, "raw/", sep= "/")
   }
 
@@ -175,6 +167,30 @@ get_data <- function(sn, limit = NULL, start = NULL, stop = NULL, filter = NULL,
              filter = filter,
              sort = sort
              ),
+    class = "device_data"
+  )
+}
+
+#' Get device data by date
+#'
+#' Get data according to the provided serial number and date.
+#'
+#' @param sn A device serial number
+#' @param by_date (optional) A date for which to return data. Must be in format "YYYY-MM-DD".
+#' @param raw (optional) Default FALSE. Returns the raw data. Currently only available to developers and admins.
+#'
+#' @returns The specified device data for the specified date
+#'
+#' @export
+get_data_by_date <- function(sn, date, raw = FALSE){
+  endpoint <- paste("devices", sn, "data-by-date", date, sep= "/")
+
+  if(raw){
+    endpoint <- paste(endpoint, "raw", sep= "/")
+  }
+
+  structure(
+    requests(endpoint, httr::GET),
     class = "device_data"
   )
 }

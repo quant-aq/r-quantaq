@@ -20,6 +20,14 @@ test_that("build_api_url deals with added keyword args", {
   expect_identical(built_url, expected_url)
 })
 
+test_that("build_api_url drops any NULL qs_params", {
+  built_url <- build_api_url("devices", qs_params = list(limit = 10, sort = NULL, hop = NULL))
+
+  expected_url <- "https://api.quant-aq.com/device-api/v1/devices?limit=10"
+
+  expect_identical(built_url, expected_url)
+})
+
 #-------------- request()
 
 test_that("request GET handles trailing slash", {
@@ -103,8 +111,8 @@ test_that("all the data in a paginate call with a timestamp filtered request giv
   last_sample_timestamp <- lubridate::ymd_hms(all_data[[1]]$timestamp)
   expected_interval <- lubridate::interval(lubridate::ymd_hms(earliest_string), lubridate::ymd_hms(latest_string))
 
-  expect_true(lubridate::`%within%`(first_sample_timestamp,expected_interval))
-  expect_true(lubridate::`%within%`(last_sample_timestamp,expected_interval))
+  expect_true(lubridate::`%within%`(first_sample_timestamp, expected_interval))
+  expect_true(lubridate::`%within%`(last_sample_timestamp, expected_interval))
 })
 
 #-------------- format_params()
@@ -143,7 +151,32 @@ test_that("format_params with both start and stop formats correctly", {
   expect_identical(p2$filter, expected_string)
 })
 
+test_that("format params properly drops start and stop when NULL", {
+  out_kwargs <- format_params(start = NULL, stop = NULL)
+
+  # there should not be a "filter" kwarg in the return from format_params
+  expect_false("filter" %in% names(out_kwargs))
+})
+
 #-------------- requests()
+
+test_that("requests with multiple pages returns more data than a simple request to the same endpoint", {
+  this_limit <- 100
+  paginated_data <- requests("devices/MOD-PM-00808/data/", limit = this_limit)
+  single_request_data <- request("devices/MOD-PM-00808/data/?limit=100")$data
+
+  expect_true(length(paginated_data) > length(single_request_data))
+
+})
+
+test_that("requests handles data-by-date",{
+  this_date <- "2023-08-22"
+  x <- requests(paste("devices/MOD-PM-00808/data-by-date", this_date, sep = "/"))
+
+  all_within <- as.logical(lapply(x, function(y) parse_date_time(y$timestamp, "Ymd H:M:S.") %within% as.interval(1, ymd(this_date))))
+
+  expect_true(all(all_within))
+})
 
 test_that("requests for something other than data with only one page returns as expected", {
   x <- requests("teams")
@@ -151,7 +184,7 @@ test_that("requests for something other than data with only one page returns as 
   expect_true(is.list(x))
 })
 
-test_that("requests for data with only one page returns a simple request", {
+test_that("requests for data with only one page returns as expected", {
   this_limit <- 10
 
   x <- requests("devices/MOD-PM-00808/data/", limit = this_limit)

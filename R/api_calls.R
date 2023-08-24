@@ -15,6 +15,7 @@ build_api_url <- function(endpoint, qs_params = NULL){
   url_string <- paste(client$base_url, client$version, "", sep="/")
   combined_url_string <- XML::getRelativeURL(endpoint, url_string) # combined url string and path/endpoint
 
+
   final_url <- modify_url(combined_url_string, query = qs_params)
 
   return(final_url)
@@ -104,32 +105,24 @@ paginate <- function(response_content, verb = httr::GET){
 #' Format the parameters that can be passed to \code{requests()}.
 #'
 #' @importFrom stringr str_split
-#'
 #' @param ... Parameters to be translated to query string and passed to the request.
-#'
 #' @returns A named list of query params.
 #'
 format_params <- function(...){
-  # names(kwargs) <- lapply(names(kwargs),stringr::str_to_lower) # standardize param names
   kwargs <- list(...)
   filter <- stringr::str_split(kwargs$filter, ";")
 
   # TODO: set default per_page to 100?
   # TODO: give some warning when passed params are not recognized?
 
-  if("start" %in% names(kwargs)){
+  if("start" %in% names(kwargs) && !is.null(kwargs$start)){
     filter <- c(filter,paste0("timestamp,ge,", kwargs$start))
     kwargs$start <- NULL
   }
 
-  if("stop" %in% names(kwargs)){
+  if("stop" %in% names(kwargs) && !is.null(kwargs$stop)){
     filter <- c(filter,paste0("timestamp,le,", kwargs$stop))
     kwargs$stop <- NULL
-  }
-
-  if('sort' %in% names(kwargs)){
-
-
   }
 
   # format the filter string. If it's not empty, add it to kwargs
@@ -160,9 +153,12 @@ requests <- function(endpoint, verb = httr::GET, ...){
 
   this_data <- r
 
-  pages <- r$meta
-  if(!is.null(pages)){
-    if(!is.null(pages$next_url) & pages$page != pages$pages){ # if next_url exists and we're not on the last page
+  meta <- r$meta
+  if(!is.null(meta)){ # if meta exists
+    if(!is.null(meta$date)){ #if we're dealing with data-by-date
+      this_data <- r$data
+    }
+    else if(!is.null(meta$next_url) & meta$page != meta$pages){ # if we're dealing with paginated data (next_url exists) and we're not on the last page
       this_data <- paginate(r)
     } else {
       this_data <- r$data

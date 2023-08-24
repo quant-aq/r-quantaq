@@ -81,15 +81,14 @@ as.data.frame.teams <- function(x, ...){
 #' @importFrom wrapr stop_if_dot_args
 #'
 #' @param sn A device serial number
-#' @param ... Named arguments, passed as query parameters (see: limit, sort)
 #' @param limit (optional) The number of devices to return
 #' @param sort (optional) A parameter upon which to sort, and the sort method (ascending or descending), formatted as "parameter,order", e.g. "id,asc"
 #'
 #' @returns The user's device information
 #' @export
-get_devices <- function(sn = NULL, ...){
+get_devices <- function(sn = NULL, limit = NULL, sort = NULL){
   structure(
-    requests(paste("devices", sn, sep = "/"), verb = httr::GET, ...),
+    requests(paste("devices", sn, sep = "/"), verb = httr::GET, limit = limit, sort = sort),
     class = "devices"
   )
 }
@@ -136,8 +135,7 @@ get_device_metadata <- function(sn){
 #' @importFrom httr GET
 #'
 #' @param sn A device serial number
-#' @param ... Named arguments passed as query parameters (see limit, start, stop, etc.)
-#' @param limit The number of data points to return
+#' @param limit (optional) The number of data points to return
 #' @param start (optional) The earliest date to retrieve data from. Should be a timestamp string of the form "YYYY-MM-DD HH:MM:SS"
 #' @param stop (optional) The latest date to retrieve data from. Should be a timestamp string of the form "YYYY-MM-DD HH:MM:SS"
 #' @param filter (optional) A string providing filter parameters, see below examples and \href{https://docs.quant-aq.com/api#8e14edbf9dee4162a04f729ce022cb4b}{API documentation} for more information.
@@ -155,21 +153,28 @@ get_device_metadata <- function(sn){
 #'
 #' @returns The specified device data
 #' @export
-get_data <- function(sn, ...){
-  endpoint <- paste("devices", sn, "data", sep = "/")
+get_data <- function(sn, limit = NULL, start = NULL, stop = NULL, filter = NULL, sort = NULL, raw = NULL, by_date = NULL){
+  endpoint <- paste("devices", sn, sep="/")
 
-  if(...length() > 0){
-    if("by_date" %in% ...names()){
-      endpoint <- paste(endpoint, "data-by-date/", by_date, sep= "/")
-    }
+  if(!is.null(by_date)){
+    date <- paste0(by_date, "/")
+    endpoint <- paste(endpoint, "data-by-date", date, sep= "/")
+  } else {
+    endpoint <- paste(endpoint, "data", sep = "/")
+  }
 
-    if("raw" %in% ...names()){
-      endpoint <- paste(endpoint, "raw/", sep= "/")
-    }
+  if(!is.null(raw)){
+    endpoint <- paste(endpoint, "raw/", sep= "/")
   }
 
   structure(
-    requests(endpoint, httr::GET, ...),
+    requests(endpoint, httr::GET,
+             limit = limit,
+             start = start,
+             stop = stop,
+             filter = filter,
+             sort = sort
+             ),
     class = "device_data"
   )
 }
@@ -201,11 +206,11 @@ as.data.frame.device_data <- function(x, ...){
 #' Get device log data.
 #'
 #' @param sn Device serial number
-#' @param ... Named arguments
+#' @param limit (optional) The number of logs to return
 #' @returns Data logs
-get_logs <- function(sn, ...){
+get_logs <- function(sn, limit = NULL){
   structure(
-    requests(paste("log", sn, sep = "/"), ...),
+    requests(paste("log", sn, sep = "/"), limit = limit),
     class = "logs"
   )
 }

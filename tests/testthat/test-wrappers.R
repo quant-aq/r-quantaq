@@ -15,7 +15,10 @@ test_that("get data passes limit properly",{
 #   expect_failure(get_devices("MOD-PM-00808", 10), "get_devices")
 # })
 
-test_that("get_data_by_date returns data within the appropriate date", {
+test_that("get_data_by_date returns data with timestamps within the appropriate bounds", {
+  tz <- Sys.timezone()
+  yesterday <- lubridate::today(tzone = tz) - day(1)
+  data <- get_data_by_date("MOD-PM-00808", yesterday) %>% as.data.frame
 
 })
 

@@ -15,7 +15,7 @@ unnest_all <- function(df) {
   }
 
   for (list_column in list_columns) {
-    df <- df %>% unnest_wider(list_column, names_sep = "_")
+    df <- df %>% unnest_wider(any_of(list_column), names_sep = "_")
   }
   unnest_all(df)
 }

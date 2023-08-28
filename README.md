@@ -13,10 +13,10 @@ devtools::install_github(repo="quantaq/r-quantaq"")
 # General Setup
 To connect to the API, first run `setup_client()`. By passing `verbose = TRUE`, you will receive a message on successful connection to the API.
 
-Though you can include the api key in the function signature, (i.e. `setup_client(api_key = <your api key here>)`), we recommend RStudio users to call `setup_client()` without arguments, and RStudio will use its automatic secret key manager. You can then follow the prompt to install the keyring package, which saves the key so you don't have to enter it every time.
+Though you can include the api key in the function signature, (i.e. `setup_client(api_key = <your api key here>)`), we recommend that RStudio users call `setup_client()` without arguments, and RStudio will use its automatic secret key manager. You can then follow the prompt to install the keyring package, which saves the key so you don't have to enter it every time.
 
 # Basic Functioning
-`whoami()` returns your account information, and each `get_` function GETs the data from its similarly-named API endpoint. Each of these can be piped or passed to `as.data.frame` for nicer formatting, e.g. to get data from device serial number MOD-PM-00233:
+`whoami()` returns your account information, and each `get_` function GETs the data from its similarly-named API endpoint. Each of these can be piped or passed to `as.data.frame` for nicer formatting, e.g. to get data from device serial number `MOD-PM-00233`:
 
 ```R
 # the following two are equivalent:
@@ -28,7 +28,8 @@ get_data("MOD-PM-00233") %>% as.data.frame()
 * `get_teams()`
 * `get_devices()`
 * `get_data(sn)`
-* 
+* `get_data_by_date(sn, date)`
+* `get_logs(sn)`
 
 
 # Advanced Queries

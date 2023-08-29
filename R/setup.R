@@ -24,14 +24,14 @@ setup_client <- function(api_type = 'prod', version = 'v1', api_key = NULL, verb
   )
 
   if (is.null(api_key)){
-    # if (Sys.getenv("RSTUDIO") == "1"){
+    if (Sys.getenv("RSTUDIO") == "1"){ # if running from RStudio
       api_key <- rstudioapi::askForSecret(
         name = "QuantAQ API",
         message = 'Enter your API Key',
         title = "QuantAQ API Key")
-    # } else {
-    #   api_key <- readline(prompt = "Please enter your QuantAQ API Key:")
-    # }
+    } else {
+      api_key <- readline(prompt = "Please enter your QuantAQ API Key:")
+    }
   }
 
   Sys.setenv(
@@ -52,8 +52,6 @@ setup_client <- function(api_type = 'prod', version = 'v1', api_key = NULL, verb
 #' @details
 #' A helper function that retrieves the API details set as environment variables
 #' by [setup_client()].
-#'
-#' @export
 access_client <- function(){
   client <- list(
     'api_key' = Sys.getenv('api_key'),

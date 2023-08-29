@@ -10,26 +10,14 @@ test_that("get data passes limit properly",{
   expect_equal(this_limit, length(get_data("MOD-PM-00808", limit = this_limit)))
 })
 
-
-# test_that("get_devices appropriately errs out if not given named arguments", {
-#   expect_failure(get_devices("MOD-PM-00808", 10), "get_devices")
-# })
-
 test_that("get_data_by_date returns data with timestamps within the appropriate bounds", {
-  tz <- Sys.timezone()
-  yesterday <- lubridate::today(tzone = tz) - day(1)
+  tzone <- Sys.timezone()
+  yesterday <- lubridate::today(tzone = tzone) - 1
   data <- get_data_by_date("MOD-PM-00808", yesterday) %>% as.data.frame
 
+  expected_interval <- lubridate::interval(yesterday, lubridate::today(tzone = tzone))
+
+  timestamps_are_within_interval <- as.logical(lapply(data$timestamp, function(ts) lubridate::`%within%`(ts, expected_interval)))
+
+  expect_true(all(timestamps_are_within_interval))
 })
-
-
-test_that("get_data_by_date properly handles data-by-date and raw together and separately", {
-
-})
-
-test_that("get_data handles sort appropriately", {
-  asc_data <- get_data("MOD-PM-00808", limit = 10, sort = "timestamp,asc")
-  desc_data <- get_data("MOD-PM-00808", limit = 10, sort = "timestamp,desc")
-
-})
-

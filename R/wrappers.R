@@ -135,7 +135,7 @@ get_device_metadata <- function(sn){
 #' @importFrom httr GET
 #'
 #' @param sn A device serial number
-#' @param limit (optional) The number of data points to return
+#' @param limit (optional) Default = 1000. The number of data points to return.
 #' @param start (optional) The earliest date to retrieve data from. Should be a timestamp string of the form "YYYY-MM-DD HH:MM:SS"
 #' @param stop (optional) The latest date to retrieve data from. Should be a timestamp string of the form "YYYY-MM-DD HH:MM:SS"
 #' @param filter (optional) A string providing filter parameters, see below examples and \href{https://docs.quant-aq.com/api#8e14edbf9dee4162a04f729ce022cb4b}{API documentation} for more information.
@@ -152,7 +152,7 @@ get_device_metadata <- function(sn){
 #'
 #' @returns The specified device data
 #' @export
-get_data <- function(sn, limit = NULL, start = NULL, stop = NULL, filter = NULL, sort = NULL, raw = FALSE){
+get_data <- function(sn, limit = 1000, start = NULL, stop = NULL, filter = NULL, sort = NULL, raw = FALSE){
   endpoint <- paste("devices", sn, "data", sep="/")
 
   if(raw){

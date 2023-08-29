@@ -10,7 +10,7 @@ authenticate_client(verbose = FALSE)
 \item{verbose}{(Optional) Default FALSE. Whether you want a message printed upon API connection.}
 }
 \value{
-No return value. If verbose == TRUE, prints message upon successful API connection.
+No return value. \code{verbose = TRUE} causes a message to print to console upon successful API connection.
 }
 \description{
 A helper function for \code{\link[=setup_client]{setup_client()}} to determine that the user-provided

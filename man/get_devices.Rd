@@ -11,7 +11,7 @@ get_devices(sn = NULL, limit = NULL, sort = NULL)
 
 \item{limit}{(optional) The number of devices to return}
 
-\item{sort}{(optional) A parameter upon which to sort, and the sort method (ascending or descending), formatted as "parameter,order", e.g. "id,asc"}
+\item{sort}{(optional) A parameter upon which to sort, and the sort method (ascending or descending), formatted as \code{"<parameter>,<order>"}, e.g. \code{"id,asc"}}
 }
 \value{
 The user's device information

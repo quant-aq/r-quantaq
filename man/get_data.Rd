@@ -23,9 +23,9 @@ get_data(
 
 \item{stop}{(optional) The latest date to retrieve data from. Should be a timestamp string of the form "YYYY-MM-DD HH:MM:SS"}
 
-\item{filter}{(optional) A string providing filter parameters, see below examples and \href{https://docs.quant-aq.com/api#8e14edbf9dee4162a04f729ce022cb4b}{API documentation} for more information.}
+\item{filter}{(optional) A string providing filter details of the form \code{"<parameter>,<filter spec>,<value>;"}. See below examples and \href{https://docs.quant-aq.com/api#8e14edbf9dee4162a04f729ce022cb4b}{API documentation} for more information.}
 
-\item{sort}{(optional) A data variable upon which to sort, and the sort method (ascending or descending), formatted as "parameter,order", e.g. "timestamp,asc"}
+\item{sort}{(optional) A data parameter upon which to sort, and the sort method (ascending or descending), formatted as \code{"<parameter>,<order>"}, e.g. \code{"timestamp,asc"}}
 
 \item{raw}{(optional) Default FALSE. Returns the raw data. Currently only available to developers and admins.}
 }
@@ -37,10 +37,20 @@ Get data according to provided serial number and other parameters.
 }
 \examples{
 \dontrun{
-  get_data(sn = "MOD-PM-00808", limit = 100)
-  get_data(sn = "MOD-PM-00808", start = "2020-01-01 21:54", stop = "2023-03-03 05:47")
-  get_data(sn = "MOD-PM-00808", filter = "device_state,eq,ACTIVE")
-  get_data(sn = "MOD-PM-00808", sort = "timestamp,asc")
+  # to change the limit on the amount of data returned
+  get_data(sn = <device sn>, limit = 100)
+
+  # to return data only within specific timestamps
+  get_data(sn = <device sn>, start = "20203-03-02 21:54", stop = "2023-03-03 05:47")
+
+  # to return data only where the device state is ACTIVE
+  get_data(sn = <device sn>, filter = "device_state,eq,ACTIVE;")
+
+  # to return data where PM2.5 is between 25 and 50 µg/m3
+  get_data(sn = <device sn>, filter = "filter=pm25,ge,25;pm25,le,50;")
+
+  # to sort ascending by timestamp
+  get_data(sn = <device sn>, sort = "timestamp,asc")
 }
 
 }

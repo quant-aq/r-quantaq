@@ -2,7 +2,7 @@
 % Please edit documentation in R/wrappers.R
 \name{as.data.frame.devices}
 \alias{as.data.frame.devices}
-\title{Coerce the devices class to a data.frame}
+\title{Coerce devices information to a data.frame}
 \usage{
 \method{as.data.frame}{devices}(x, ...)
 }
@@ -15,5 +15,5 @@
 A data.frame of device information
 }
 \description{
-Converts the class returned by \code{\link[=get_devices]{get_devices()}} to a data.frame.
+Coerce devices information to a data.frame
 }

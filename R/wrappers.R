@@ -31,11 +31,10 @@ whoami <- function(){
   )
 }
 
-#' Coerce accounts class to data.frame
+#' Coerce accounts information to data.frame
 #'
 #' @importFrom magrittr `%>%`
 #' @importFrom dplyr mutate across
-#' @importFrom lubridate parse_date_time
 #' @importFrom lubridate parse_date_time
 #'
 #' @param x The account class returned by [whoami()]
@@ -59,7 +58,7 @@ get_teams <- function(id = NULL){
   )
 }
 
-#' Converts teams information to data.frame
+#' Coerce teams information to data.frame
 #'
 #' @importFrom magrittr `%>%`
 #'
@@ -82,7 +81,7 @@ as.data.frame.teams <- function(x, ...){
 #'
 #' @param sn A device serial number
 #' @param limit (optional) The number of devices to return
-#' @param sort (optional) A parameter upon which to sort, and the sort method (ascending or descending), formatted as "parameter,order", e.g. "id,asc"
+#' @param sort (optional) A parameter upon which to sort, and the sort method (ascending or descending), formatted as `"<parameter>,<order>"`, e.g. `"id,asc"`
 #'
 #' @returns The user's device information
 #' @export
@@ -93,13 +92,12 @@ get_devices <- function(sn = NULL, limit = NULL, sort = NULL){
   )
 }
 
-#' Coerce the devices class to a data.frame
-#'
-#' Converts the class returned by [get_devices()] to a data.frame.
+#' Coerce devices information to a data.frame
 #'
 #' @importFrom magrittr `%>%`
 #' @importFrom tidyr unnest unnest_wider
 #' @importFrom dplyr rename_with
+#'
 #' @param x The devices class returned by [get_devices()]
 #' @param ... Placeholder for passing through to as.data.frame.default
 #' @returns A data.frame of device information
@@ -138,16 +136,26 @@ get_device_metadata <- function(sn){
 #' @param limit (optional) Default = 1000. The number of data points to return.
 #' @param start (optional) The earliest date to retrieve data from. Should be a timestamp string of the form "YYYY-MM-DD HH:MM:SS"
 #' @param stop (optional) The latest date to retrieve data from. Should be a timestamp string of the form "YYYY-MM-DD HH:MM:SS"
-#' @param filter (optional) A string providing filter parameters, see below examples and \href{https://docs.quant-aq.com/api#8e14edbf9dee4162a04f729ce022cb4b}{API documentation} for more information.
-#' @param sort (optional) A data variable upon which to sort, and the sort method (ascending or descending), formatted as "parameter,order", e.g. "timestamp,asc"
+#' @param filter (optional) A string providing filter details of the form `"<parameter>,<filter spec>,<value>;"`. See below examples and \href{https://docs.quant-aq.com/api#8e14edbf9dee4162a04f729ce022cb4b}{API documentation} for more information.
+#' @param sort (optional) A data parameter upon which to sort, and the sort method (ascending or descending), formatted as `"<parameter>,<order>"`, e.g. `"timestamp,asc"`
 #' @param raw (optional) Default FALSE. Returns the raw data. Currently only available to developers and admins.
 #'
 #' @examples
 #' \dontrun{
-#'   get_data(sn = "MOD-PM-00808", limit = 100)
-#'   get_data(sn = "MOD-PM-00808", start = "2020-01-01 21:54", stop = "2023-03-03 05:47")
-#'   get_data(sn = "MOD-PM-00808", filter = "device_state,eq,ACTIVE")
-#'   get_data(sn = "MOD-PM-00808", sort = "timestamp,asc")
+#'   # to change the limit on the amount of data returned
+#'   get_data(sn = <device sn>, limit = 100)
+#'
+#'   # to return data only within specific timestamps
+#'   get_data(sn = <device sn>, start = "20203-03-02 21:54", stop = "2023-03-03 05:47")
+#'
+#'   # to return data only where the device state is ACTIVE
+#'   get_data(sn = <device sn>, filter = "device_state,eq,ACTIVE;")
+#'
+#'   # to return data where PM2.5 is between 25 and 50 µg/m3
+#'   get_data(sn = <device sn>, filter = "filter=pm25,ge,25;pm25,le,50;")
+#'
+#'   # to sort ascending by timestamp
+#'   get_data(sn = <device sn>, sort = "timestamp,asc")
 #' }
 #'
 #' @returns The specified device data

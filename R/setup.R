@@ -75,7 +75,7 @@ access_client <- function(){
 #' @import httr
 #' @param verbose (Optional) Default FALSE. Whether you want a message printed upon API connection.
 #'
-#' @returns No return value. If verbose == TRUE, prints message upon successful API connection.
+#' @returns No return value. `verbose = TRUE` causes a message to print to console upon successful API connection.
 #'
 authenticate_client <- function(verbose = FALSE){
   client <- access_client()

@@ -2,7 +2,7 @@
 % Please edit documentation in R/wrappers.R
 \name{as.data.frame.teams}
 \alias{as.data.frame.teams}
-\title{Converts teams information to data.frame}
+\title{Coerce teams information to data.frame}
 \usage{
 \method{as.data.frame}{teams}(x, ...)
 }
@@ -15,5 +15,5 @@
 A data.frame of teams information
 }
 \description{
-Converts teams information to data.frame
+Coerce teams information to data.frame
 }

@@ -15,5 +15,5 @@ build_api_url(endpoint, qs_params = NULL)
 A character vector containing the final built URL.
 }
 \description{
-Build and return the URL given an endpoint and any query parameters.
+A helper function for \code{\link[=request]{request()}} to build and return the URL given an endpoint and any query parameters.
 }

@@ -1,8 +1,9 @@
 #' Build and return URL
 #'
-#' Build and return the URL given an endpoint and any query parameters.
+#' A helper function for [request()] to build and return the URL given an endpoint and any query parameters.
 #'
 #' @importFrom XML getRelativeURL
+#' @importFrom httr modify_url
 #'
 #' @param endpoint A character vector of an endpoint. Can be a full or relative URL
 #'
@@ -16,7 +17,7 @@ build_api_url <- function(endpoint, qs_params = NULL){
   combined_url_string <- XML::getRelativeURL(endpoint, url_string) # combined url string and path/endpoint
 
 
-  final_url <- modify_url(combined_url_string, query = qs_params)
+  final_url <- httr::modify_url(combined_url_string, query = qs_params)
 
   return(final_url)
 }
@@ -102,7 +103,7 @@ paginate <- function(response_content, verb = httr::GET){
 
 #' Handle requests params
 #'
-#' Format the parameters that can be passed to \code{requests()}.
+#' A helper function to format the parameters that can be passed to \code{requests()}.
 #'
 #' @importFrom stringr str_split
 #' @param ... Parameters to be translated to query string and passed to the request.
@@ -158,7 +159,7 @@ requests <- function(endpoint, verb = httr::GET, ...){
     if(!is.null(meta$date)){ #if we're dealing with data-by-date
       this_data <- r$data
     }
-    else if(!is.null(meta$next_url) & meta$page != meta$pages){ # if we're dealing with paginated data (next_url exists) and we're not on the last page
+    else if(!is.null(meta$next_url) & meta$page != meta$pages){ # if we're dealing with paginated data (i.e. next_url exists), and we're not on the last page
       this_data <- paginate(r)
     } else {
       this_data <- r$data

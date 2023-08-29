@@ -2,7 +2,7 @@
 % Please edit documentation in R/wrappers.R
 \name{as.data.frame.account}
 \alias{as.data.frame.account}
-\title{Coerce accounts class to data.frame}
+\title{Coerce accounts information to data.frame}
 \usage{
 \method{as.data.frame}{account}(x, ...)
 }
@@ -15,5 +15,5 @@
 A data.frame of the user's account information
 }
 \description{
-Coerce accounts class to data.frame
+Coerce accounts information to data.frame
 }

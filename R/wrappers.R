@@ -1,5 +1,5 @@
 #' A convenience function to unnest recursively nested data frames.
-#' @importFrom dplyr select where
+#' @importFrom dplyr select where any_of
 #' @importFrom tidyr unnest_wider
 #' @importFrom magrittr `%>%`
 #'

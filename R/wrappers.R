@@ -176,7 +176,7 @@ get_data <- function(sn, limit = 1000, start = NULL, stop = NULL, filter = NULL,
 #' Get data according to the provided serial number and date.
 #'
 #' @param sn A device serial number
-#' @param date (optional) A date for which to return data. Must be in format "YYYY-MM-DD".
+#' @param date A date for which to return data. Must be in format "YYYY-MM-DD".
 #' @param raw (optional) Default FALSE. Returns the raw data. Currently only available to developers and admins.
 #'
 #' @returns The specified device data for the specified date

@@ -9,7 +9,7 @@ get_data_by_date(sn, date, raw = FALSE)
 \arguments{
 \item{sn}{A device serial number}
 
-\item{date}{(optional) A date for which to return data. Must be in format "YYYY-MM-DD".}
+\item{date}{A date for which to return data. Must be in format "YYYY-MM-DD".}
 
 \item{raw}{(optional) Default FALSE. Returns the raw data. Currently only available to developers and admins.}
 }

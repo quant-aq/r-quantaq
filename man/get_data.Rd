@@ -6,7 +6,7 @@
 \usage{
 get_data(
   sn,
-  limit = NULL,
+  limit = 1000,
   start = NULL,
   stop = NULL,
   filter = NULL,
@@ -17,7 +17,7 @@ get_data(
 \arguments{
 \item{sn}{A device serial number}
 
-\item{limit}{(optional) The number of data points to return}
+\item{limit}{(optional) Default = 1000. The number of data points to return.}
 
 \item{start}{(optional) The earliest date to retrieve data from. Should be a timestamp string of the form "YYYY-MM-DD HH:MM:SS"}
 

@@ -1,19 +1,19 @@
 # r-quantaq
-The official R wrapper for the QuantAQ API
+The official R wrapper for the QuantAQ API.
 
-**In development**
+Status: **In development**
 
 # Dev Version Install
 
 ```R
 install.packages("devtools")
-devtools::install_github(repo="quantaq/r-quantaq"")
+devtools::install_github(repo="quant-aq/r-quantaq")
 ```
 
 # General Setup
 To connect to the API, first run `setup_client()`. By passing `verbose = TRUE`, you will receive a message on successful connection to the API.
 
-Though you can include the api key in the function signature, (i.e. `setup_client(api_key = <your api key here>)`), we recommend that RStudio users call `setup_client()` without arguments, and RStudio will use its automatic secret key manager. You can then follow the prompt to install the keyring package, which saves the key so you don't have to enter it every time.
+Though you can include the api key in the function signature, (i.e., `setup_client(api_key = <your api key here>)`), we recommend that RStudio users call `setup_client()` without arguments, and RStudio will use its automatic secret key manager. You can then follow the prompt to install the keyring package, which saves the key so you don't have to enter it every time.
 
 # Basic Functioning
 `whoami()` returns your account information, and each `get_` function GETs the data from its similarly-named API endpoint. Each of these can be piped or passed to `as.data.frame` for nicer formatting, e.g. to get data from device serial number `MOD-PM-00233`:

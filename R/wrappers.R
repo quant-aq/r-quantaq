@@ -191,7 +191,7 @@ get_data <- function(sn, limit = 1000, start = NULL, stop = NULL, filter = NULL,
 #'
 #' @export
 get_data_by_date <- function(sn, date, raw = FALSE){
-  endpoint <- paste("devices", "sn", "data-by-date", sep = "/")
+  endpoint <- paste("devices", sn, "data-by-date", sep = "/")
 
   if(raw){
     endpoint <- paste(endpoint, "raw", sep="/")

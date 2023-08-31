@@ -1,10 +1,10 @@
 Package: QuantAQAPIClient
-Title: Bindings for QuantAQ API Client
-Version: 0.0.0.9000
+Title: QuantAQ API Client
+Version: 0.1.0.0
 Authors@R: 
     person("Christopher", "Dudas-Thomas", , "christopher.dudasthomas@gmail.com", role = c("aut", "cre"))
     person("David", "Hagan", , "david.hagan@quant-aq.com", role = c("aut", "cre"))
-Description: This package offers wrappers for the QuantAQ API (https://docs.quant-aq.com/api). It gives convenience functions for connecting to the API, as well as querying account information, devices, data, logs, and calibration models.
+Description: Wrappers and convenience functions for the Quant AQ API <https://api.quant-aq.com/>. These include functions for connecting to the API, as well as querying account information, devices, data, logs, and calibration models. See <https://docs.quant-aq.com/api> for more details.
 License: Apache License (>= 2)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

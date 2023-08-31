@@ -45,7 +45,7 @@ To receive data as a dataframe (rather than json), you can use the `as.data.fram
 as.data.frame(get_data("<serial-number>"))
 
 # Pipe it through
-get_data("<serial-number>") > as.data.frame()
+get_data("<serial-number>") %>% as.data.frame()
 ```
 
 
@@ -152,13 +152,14 @@ get_data("<serial-number>"), sort = 'timestamp,desc')
 Tests are run automatically when pull requests are made against the `main` branch via a github action. To run locally:
 
 ```R
-TODO
+devtools::test()
 ```
 
 To build a new version of the docs pdf:
 
 ```R
-TODO
+devtools::document() # in case any changes were made to the documentation in the code
+devtools::build_manual() # to build the pdf
 ```
 
 To contribute to this library, please submit a pull request with documentation and notes about what changed and why. Please be as descriptive as possible, add tests where necessary, and add an appropriate label. A QuantAQ maintainer will review and merge PRs as they are received.

@@ -151,6 +151,22 @@ test_that("format_params with both start and stop formats correctly", {
   expect_identical(p2$filter, expected_string)
 })
 
+test_that("format_params drops trailing ; and the empty string after it", {
+  p <- format_params(limit = 500, start = "2020-01-01 00:00", stop = "2023-03-03 00:00", filter = "device_state,eq,ACTIVE;")
+  expected_string <- "device_state,eq,ACTIVE;timestamp,ge,2020-01-01 00:00;timestamp,le,2023-03-03 00:00"
+  expect_identical(p$filter, expected_string)
+})
+
+test_that("format_params gets paste() strings right", {
+  this_min <- 25
+  this_max <- 50
+  filter_str <- paste0("pm25,ge,", this_min, ";pm25,le,", this_max, ";")
+
+  p <- format_params(limit = 100, filter = filter_str)
+
+  expect_equal(p$filter, "pm25,ge,25;pm25,le,50")
+})
+
 test_that("format params properly drops start and stop when NULL", {
   out_kwargs <- format_params(start = NULL, stop = NULL)
 
@@ -211,4 +227,25 @@ test_that("requests with start/stop returns data from the expected timestamp ran
 
   expect_true(lubridate::`%within%`(first_sample_timestamp,expected_interval))
   expect_true(lubridate::`%within%`(last_sample_timestamp,expected_interval))
+})
+
+test_that("requests for data with filters returns appropriate data", {
+  this_min <- 25
+  this_max <- 50
+
+ filter_str <- paste0("pm25,ge,", this_min, ";pm25,le,", this_max, ";")
+
+  x <- requests("devices/MOD-PM-00808/data/", limit = 100,
+                filter = filter_str)
+
+  above_max <- as.logical(lapply(x, function(x) x$pm25 > this_max)) # FALSE
+  below_max <- as.logical(lapply(x, function(x) x$pm25 < this_max)) # TRUE
+  above_min <- as.logical(lapply(x, function(x) x$pm25 > this_min)) # TRUE
+  below_min <- as.logical(lapply(x, function(x) x$pm25 < this_min)) # FALSE
+
+  expect_true(all(below_max))
+  expect_true(all(above_min))
+
+  expect_false(all(above_max))
+  expect_false(all(below_min))
 })

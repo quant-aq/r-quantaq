@@ -111,7 +111,8 @@ paginate <- function(response_content, verb = httr::GET){
 #'
 format_params <- function(...){
   kwargs <- list(...)
-  filter <- stringr::str_split(kwargs$filter, ";")
+  filter <- stringr::str_split(kwargs$filter, ";", simplify = TRUE)
+  filter <- filter[filter != ""] # drop empty string from filter
 
   # TODO: set default per_page to 100?
   # TODO: give some warning when passed params are not recognized?

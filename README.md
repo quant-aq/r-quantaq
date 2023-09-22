@@ -1,5 +1,9 @@
 # r-quantaq
 
+<!-- badges: start -->
+[![R-CMD-check](https://github.com/christopherDT/r-quantaq/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/christopherDT/r-quantaq/actions/workflows/R-CMD-check.yaml)
+<!-- badges: end -->
+
 An R wrapper for the QuantAQ RESTful API.
 
 **NOTE**:

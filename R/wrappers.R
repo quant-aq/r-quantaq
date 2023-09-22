@@ -26,7 +26,7 @@ unnest_all <- function(df) {
 #' @export
 whoami <- function(){
   structure(
-    request("account"),
+    quantaq_request("account"),
     class = "account"
   )
 }
@@ -76,7 +76,6 @@ as.data.frame.teams <- function(x, ...){
 
 #' Get the user's devices
 #'
-#' @importFrom httr GET
 #' @importFrom wrapr stop_if_dot_args
 #'
 #' @param sn A device serial number
@@ -87,7 +86,7 @@ as.data.frame.teams <- function(x, ...){
 #' @export
 get_devices <- function(sn = NULL, limit = NULL, sort = NULL){
   structure(
-    requests(paste("devices", sn, sep = "/"), verb = httr::GET, limit = limit, sort = sort),
+    requests(paste("devices", sn, sep = "/"), limit = limit, sort = sort),
     class = "devices"
   )
 }
@@ -130,8 +129,6 @@ get_device_metadata <- function(sn){
 #'
 #' Get data according to provided serial number and other parameters.
 #'
-#' @importFrom httr GET
-#'
 #' @param sn A device serial number
 #' @param limit (optional) Default = 1000. The number of data points to return.
 #' @param start (optional) The earliest date to retrieve data from. Should be a timestamp string of the form "YYYY-MM-DD HH:MM:SS"
@@ -168,7 +165,7 @@ get_data <- function(sn, limit = 1000, start = NULL, stop = NULL, filter = NULL,
   }
 
   structure(
-    requests(endpoint, httr::GET,
+    requests(endpoint,
              limit = limit,
              start = start,
              stop = stop,
@@ -200,7 +197,7 @@ get_data_by_date <- function(sn, date, raw = FALSE){
   endpoint <- paste(endpoint, date, sep = "/")
 
   structure(
-    requests(endpoint, httr::GET),
+    requests(endpoint),
     class = "device_data"
   )
 }

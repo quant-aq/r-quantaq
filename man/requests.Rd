@@ -4,12 +4,10 @@
 \alias{requests}
 \title{Request that handles pagination}
 \usage{
-requests(endpoint, verb = httr::GET, ...)
+requests(endpoint, ...)
 }
 \arguments{
 \item{endpoint}{A character string of the API endpoint to request.}
-
-\item{verb}{The httr function corresponding to the HTTP verb. Defaults to GET.}
 
 \item{...}{Params to be translated to query string.}
 }

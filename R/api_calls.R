@@ -1,97 +1,52 @@
-#' Build and return URL
-#'
-#' A helper function for [request()] to build and return the URL given an endpoint and any query parameters.
-#'
-#' @importFrom XML getRelativeURL
-#' @importFrom httr modify_url
-#'
-#' @param endpoint A character vector of an endpoint. Can be a full or relative URL
-#'
-#' @param qs_params A list of query string parameters to format and attach to the URL (e.g. list(per_page = 10))
-#'
-#' @returns A character vector containing the final built URL.
-#'
-build_api_url <- function(endpoint, qs_params = NULL){
-  client <- access_client()
-  url_string <- paste(client$base_url, client$version, "", sep="/")
-  combined_url_string <- XML::getRelativeURL(endpoint, url_string) # combined url string and path/endpoint
-
-
-  final_url <- httr::modify_url(combined_url_string, query = qs_params)
-
-  return(final_url)
-}
-
 #' Complete an API request
 #'
-#' Generate an API request given endpoint, http verb, and any relevant query parameters.
-#'
-#' @importFrom httr GET
-#' @importFrom jsonlite fromJSON
+#' Generate an API request given an endpoint and any relevant query parameters.
 #'
 #' @param endpoint A character string of the API endpoint to request.
-#' @param verb The httr function corresponding to the HTTP verb. Defaults to GET.
 #' @param qs_params Query string parameters.
 #'
 #' @examples
-#' \dontrun{r <- request("account")}
+#' \dontrun{r <- quantaq_request("account")}
 #'
 #' # include named arguments for query params, e.g. to limit the response to the first 5 results:
-#' \dontrun{r <- request("devices/MOD-PM-00808/data", limit = 5)}
+#' \dontrun{r <- quantaq_request("devices/MOD-PM-00808/data", limit = 5)}
 #'
 #' @returns The parsed JSON from the API, including both data and metadata.
 #'
-request <- function(endpoint, verb = httr::GET, qs_params = NULL){
+quantaq_request <- function(endpoint, qs_params = NULL){
   client <- access_client()
-  this_url <- build_api_url(endpoint, qs_params)
 
-  resp <- verb(this_url,
-            authenticate(client$api_key, ""),
-            add_headers(user_agent = client$ua))
+  is_full_url <- stringr::str_detect(endpoint, "http")
 
-  # because API doesn't return json upon 400 and 500 errors, check that first
-  if (http_error(resp)) {
-    stop(
-      sprintf(
-        "[%s] -- QuantAQ API request failed \n%s\npath: <%s>",
-        status_code(resp),
-        content(resp, as = "text", encoding = "UTF-8"),
-        this_url
-      ),
-      call. = FALSE
-    )
+  if(is_full_url){ # if it's a full url
+    req <- httr2::request(endpoint)
+  } else{ # otherwise, build the url from the relative path
+    req <- httr2::request(client$base_url) %>%
+      httr2::req_url_path_append(client$version) %>%
+      httr2::req_url_path_append(endpoint)
   }
 
-  # then, if we don't err out and it's JSON, parse it!
-  if (http_type(resp) != "application/json"){
-    stop("API did not return JSON", call. = FALSE)
-  }
-
-  parsed <- jsonlite::fromJSON(content(resp, as = "text", encoding = "UTF-8"), simplifyVector = FALSE)
-
-  return(parsed)
+  req %>% httr2::req_url_query(!!!qs_params) %>%
+    httr2::req_auth_basic(client$api_key, "") %>%
+    httr2::req_user_agent(client$ua) %>%
+    httr2::req_perform()
 }
 
 #' Deal with paginated data.
 #'
 #' Iterates over and collated all pages of the data.
 #'
-#' @importFrom httr GET
-#'
 #' @param response_content Content from a \code{\link{request}()}
-#' @param verb The httr function corresponding to the HTTP verb. Defaults to GET.
 #'
 #' @returns All collated pages of the data.
 #'
-paginate <- function(response_content, verb = httr::GET){
+paginate <- function(response_content){
   all_data <- response_content$data
   next_url <- response_content$meta$next_url
 
   #keep getting the next page while a new page exists, and append every new page's data
   while(!is.null(next_url)){
-    this_query <- parse_url(next_url)$query
-
-    r <- do.call(request, list(next_url, qs_params = this_query))
+    r <- quantaq_request(next_url) %>% httr2::resp_body_json()
 
     next_url <- r$meta$next_url
 
@@ -139,19 +94,15 @@ format_params <- function(...){
 
 #' Request that handles pagination
 #'
-#' @importFrom httr GET
-#'
+#' @importFrom httr2 resp_body_json
 #' @param endpoint A character string of the API endpoint to request.
-#'
-#' @param verb The httr function corresponding to the HTTP verb. Defaults to GET.
-#'
 #' @param ... Params to be translated to query string.
 #'
 #' @returns Parsed data from the API.
 #'
-requests <- function(endpoint, verb = httr::GET, ...){
+requests <- function(endpoint, ...){
   kwargs <- format_params(...)
-  r <- request(endpoint, verb = verb, qs_params = kwargs)
+  r <- quantaq_request(endpoint, qs_params = kwargs) %>% httr2::resp_body_json()
 
   this_data <- r
 

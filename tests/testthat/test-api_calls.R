@@ -1,55 +1,36 @@
-#-------------- build_api_url()
-
-test_that("build_api_url deals with full URL", {
-  api_url <- build_api_url("https://api.quant-aq.com/device-api/v1/devices/MOD-PM-00808/data/?page=2&per_page=50")
-
-  expect_identical(api_url, "https://api.quant-aq.com/device-api/v1/devices/MOD-PM-00808/data/?page=2&per_page=50")
+#-------------- quantaq_request())
+test_that("giving a bad endpoint throws a 401 error", {
+  expect_error(quantaq_request("acc"))
 })
 
-test_that("build_api_url deals with api partial endpoint", {
-  api_url <- build_api_url("devices/MOD-PM-00808/data/?page=2&per_page=50")
-
-  expect_identical(api_url, "https://api.quant-aq.com/device-api/v1/devices/MOD-PM-00808/data/?page=2&per_page=50")
-})
-
-test_that("build_api_url deals with added keyword args", {
-  built_url <- build_api_url("https://api.quant-aq.com/device-api/v1/devices/MOD-PM-00808/data/?page=1", qs_params = list(per_page = 50))
-
-  expected_url <- "https://api.quant-aq.com/device-api/v1/devices/MOD-PM-00808/data/?page=1&per_page=50"
-
-  expect_identical(built_url, expected_url)
-})
-
-test_that("build_api_url drops any NULL qs_params", {
-  built_url <- build_api_url("devices", qs_params = list(limit = 10, sort = NULL, hop = NULL))
-
-  expected_url <- "https://api.quant-aq.com/device-api/v1/devices?limit=10"
-
-  expect_identical(built_url, expected_url)
-})
-
-#-------------- request()
-
-test_that("request GET handles trailing slash", {
-  r1 <- request("devices", verb = httr::GET)
-  r2 <- request("devices/", verb = httr::GET)
+test_that("quantaq_request handles both full url and relative endpoint", {
+  r1 <- quantaq_request("https://api.quant-aq.com/device-api/v1/devices/MOD-PM-00808/data/?page=1&per_page=50&limit=200") %>% resp_body_json()
+  r2 <- quantaq_request("devices/MOD-PM-00808/data/?page=1&per_page=50&limit=200") %>% resp_body_json()
 
   expect_identical(r1,r2)
 })
 
-test_that("request GET with limit returns appropriate amount", {
+test_that("quantaq_request handles trailing slash", {
+  r1 <- quantaq_request("devices") %>% resp_body_json()
+  r2 <- quantaq_request("devices/") %>% resp_body_json()
+
+  expect_identical(r1,r2)
+})
+
+test_that("quantaq_request with limit returns appropriate amount", {
   this_limit <- 2
-  content <- request("devices", qs_params = list(limit = this_limit))
+  content <- quantaq_request("devices", qs_params = list(limit = this_limit)) %>% resp_body_json()
   expect_equal(length(content$data), this_limit)
   expect_equal(content$meta$total, this_limit)
 })
 
-test_that("request GET with timestamp filter returns appropriate timestamps", {
+test_that("quantaq_request with timestamp filter returns appropriate timestamps", {
   earliest_string <- "2023-08-06T22:00:00"
   latest_string <- "2023-08-06T22:06:00"
 
-  r <- request("devices/MOD-PM-00808/data/",
-               qs_params = list(filter = paste0("timestamp,ge,", earliest_string, ";timestamp,le,", latest_string)))
+  r <- quantaq_request("devices/MOD-PM-00808/data/",
+               qs_params = list(filter = paste0("timestamp,ge,", earliest_string, ";timestamp,le,", latest_string))) %>%
+    resp_body_json()
 
   first_sample_timestamp <- lubridate::ymd_hms(r$data[[1]]$timestamp)
   last_sample_timestamp <- lubridate::ymd_hms(r$data[[length(r$data)]]$timestamp)
@@ -59,9 +40,10 @@ test_that("request GET with timestamp filter returns appropriate timestamps", {
   expect_true(lubridate::`%within%`(last_sample_timestamp,expected_interval))
 })
 
-test_that("request GET with sort option returns appropriately sorted timestamps",{
-  r <- request("devices/MOD-PM-00808/data/",
-               qs_params = list(sort = "timestamp,asc", limit = 10))
+test_that("quantaq_request with sort option returns appropriately sorted timestamps",{
+  r <- quantaq_request("devices/MOD-PM-00808/data/",
+               qs_params = list(sort = "timestamp,asc", limit = 10)) %>%
+    resp_body_json()
 
   first_sample_timestamp <- lubridate::ymd_hms(r$data[[1]]$timestamp)
   second_sample_timestamp <- lubridate::ymd_hms(r$data[[2]]$timestamp)
@@ -83,7 +65,8 @@ test_that("request GET with sort option returns appropriately sorted timestamps"
 #-------------- paginate()
 
 test_that("paginate returns proper size data when given multiple pages", {
-  r <- request("devices/MOD-PM-00808/data/", qs_params = list(per_page = 50, limit = 200))
+  r <- quantaq_request("devices/MOD-PM-00808/data/", qs_params = list(per_page = 50, limit = 200)) %>%
+    httr2::resp_body_json()
 
   paginated_data <- paginate(r)
 
@@ -91,7 +74,7 @@ test_that("paginate returns proper size data when given multiple pages", {
 })
 
 test_that("paginate returns proper size when given one page", {
-  r <- request("devices/MOD-PM-00808/data/", qs_params = list(limit = 10))
+  r <- quantaq_request("devices/MOD-PM-00808/data/", qs_params = list(limit = 10)) %>% httr2::resp_body_json()
 
   paginated_data <- paginate(r)
 
@@ -102,8 +85,9 @@ test_that("all the data in a paginate call with a timestamp filtered request giv
   earliest_string <- "2023-08-06T20:00:00"
   latest_string <- "2023-08-06T22:06:00"
 
-  r <- request("devices/MOD-PM-00808/data/",
-               qs_params = list(filter = paste0("timestamp,ge,", earliest_string, ";timestamp,le,", latest_string)))
+  r <- quantaq_request("devices/MOD-PM-00808/data/",
+               qs_params = list(filter = paste0("timestamp,ge,", earliest_string, ";timestamp,le,", latest_string))) %>%
+    httr2::resp_body_json()
 
   all_data <- paginate(r)
 
@@ -179,7 +163,7 @@ test_that("format params properly drops start and stop when NULL", {
 test_that("requests with multiple pages returns more data than a simple request to the same endpoint", {
   this_limit <- 100
   paginated_data <- requests("devices/MOD-PM-00808/data/", limit = this_limit)
-  single_request_data <- request("devices/MOD-PM-00808/data/?limit=100")$data
+  single_request_data <- quantaq_request("devices/MOD-PM-00808/data/?limit=100")$data
 
   expect_true(length(paginated_data) > length(single_request_data))
 

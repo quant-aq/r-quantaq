@@ -7,7 +7,7 @@
 quantaq_request(endpoint, qs_params = NULL)
 }
 \arguments{
-\item{endpoint}{A character string of the API endpoint to request.}
+\item{endpoint}{A character string of the API endpoint to request. Can be a full url, or a relative endpoint for the QuantAQ API}
 
 \item{qs_params}{Query string parameters.}
 }
@@ -20,7 +20,7 @@ Generate an API request given an endpoint and any relevant query parameters.
 \examples{
 \dontrun{r <- quantaq_request("account")}
 
-# include named arguments for query params, e.g. to limit the response to the first 5 results:
-\dontrun{r <- quantaq_request("devices/MOD-PM-00808/data", limit = 5)}
+# include a named list for query params, e.g. to limit the response to the first 5 results:
+\dontrun{r <- quantaq_request("devices/MOD-PM-00808/data", list(limit = 5))}
 
 }

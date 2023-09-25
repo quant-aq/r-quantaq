@@ -2,14 +2,14 @@
 #'
 #' Generate an API request given an endpoint and any relevant query parameters.
 #'
-#' @param endpoint A character string of the API endpoint to request.
+#' @param endpoint A character string of the API endpoint to request. Can be a full url, or a relative endpoint for the QuantAQ API
 #' @param qs_params Query string parameters.
 #'
 #' @examples
 #' \dontrun{r <- quantaq_request("account")}
 #'
-#' # include named arguments for query params, e.g. to limit the response to the first 5 results:
-#' \dontrun{r <- quantaq_request("devices/MOD-PM-00808/data", limit = 5)}
+#' # include a named list for query params, e.g. to limit the response to the first 5 results:
+#' \dontrun{r <- quantaq_request("devices/MOD-PM-00808/data", list(limit = 5))}
 #'
 #' @returns The parsed JSON from the API, including both data and metadata.
 #'
@@ -36,7 +36,7 @@ quantaq_request <- function(endpoint, qs_params = NULL){
 #'
 #' Iterates over and collated all pages of the data.
 #'
-#' @param response_content Content from a \code{\link{request}()}
+#' @param response_content JSON content from a [quantaq_request()] response
 #'
 #' @returns All collated pages of the data.
 #'
@@ -58,7 +58,7 @@ paginate <- function(response_content){
 
 #' Handle requests params
 #'
-#' A helper function to format the parameters that can be passed to \code{requests()}.
+#' A helper function to format the parameters that can be passed to [requests()].
 #'
 #' @importFrom stringr str_split
 #' @param ... Parameters to be translated to query string and passed to the request.

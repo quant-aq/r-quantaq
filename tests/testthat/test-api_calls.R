@@ -179,7 +179,7 @@ test_that("requests handles data-by-date",{
 })
 
 test_that("requests for something other than data with only one page returns as expected", {
-  x <- requests("teams")
+  x <- requests("orgs")
 
   expect_true(is.list(x))
 })

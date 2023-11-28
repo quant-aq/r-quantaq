@@ -4,12 +4,10 @@
 \alias{paginate}
 \title{Deal with paginated data.}
 \usage{
-paginate(response_content, verb = httr::GET)
+paginate(response_content)
 }
 \arguments{
-\item{response_content}{Content from a \code{\link{request}()}}
-
-\item{verb}{The httr function corresponding to the HTTP verb. Defaults to GET.}
+\item{response_content}{JSON content from a \code{\link[=quantaq_request]{quantaq_request()}} response}
 }
 \value{
 All collated pages of the data.

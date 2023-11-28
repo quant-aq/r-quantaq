@@ -16,7 +16,7 @@
 #'
 #' @export
 setup_client <- function(api_type = 'prod', version = 'v1', api_key = NULL, verbose = FALSE) {
-  ua <- user_agent("https://github.com/quant-aq/r-quantaq")
+  ua <- "https://github.com/quant-aq/r-quantaq"
 
   base_url <- dplyr::case_when(
     api_type == 'prod' ~ 'https://api.quant-aq.com/device-api',
@@ -72,27 +72,24 @@ access_client <- function(){
 #' A helper function for [setup_client()] to determine that the user-provided
 #' API details yields a proper connection with the API.
 #'
-#' @import httr
 #' @param verbose (Optional) Default FALSE. Whether you want a message printed upon API connection.
 #'
 #' @returns No return value. `verbose = TRUE` causes a message to print to console upon successful API connection.
 #'
 authenticate_client <- function(verbose = FALSE){
   client <- access_client()
-  path <- paste0(client$version,'/account') # just use "account" endpoint to authenticate
-  url <- modify_url(client$base_url, path=path)
-  code <- status_code(GET(
-    url,
-    authenticate(client$api_key, ""),
-    add_headers(user_agent = client$ua)
-  ))
-  if (code == 401){
-    stop(paste0(http_status(code)$message, " -- Invalid API Key!"))
-  } else if (code != 200){
-    stop(http_status(code)$message)
-  } else {
-    if(verbose == TRUE){
-      cat("Successfully connected to QuantAQ API!")
+
+  withCallingHandlers(
+    quantaq_request('account'),
+    httr2_http_401 = function(cnd) {
+      rlang::abort("Invalid API Key!", parent = cnd)
+    },
+    httr2_http_404 = function(cnd) {
+      rlang::abort("Endpoint not found!", parent = cnd)
     }
+  )
+
+  if(verbose == TRUE){
+    cat("Successfully connected to QuantAQ API!")
   }
 }

@@ -13,5 +13,5 @@ format_params(...)
 A named list of query params.
 }
 \description{
-A helper function to format the parameters that can be passed to \code{requests()}.
+A helper function to format the parameters that can be passed to \code{\link[=requests]{requests()}}.
 }

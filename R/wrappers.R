@@ -89,7 +89,7 @@ as.data.frame.organizations <- function(x, ...){
     # we'll do the whole thing again!
     row %>% unclass %>% data.frame
   }))
-  df %>% mutate(created_on = parse_date_time(created_on, "Ymd H:M:S.z"))
+  df %>% mutate(created_on = parse_date_time("created_on", "Ymd H:M:S.z"))
 }
 
 #' Get the user's networks information, within the context of an organization
@@ -135,7 +135,7 @@ as.data.frame.networks <- function(x, ...){
     # we'll do the whole thing again!
     row %>% unclass %>% data.frame
   }))
-  df %>% mutate(created_on = parse_date_time(created_on, "Ymd H:M:S.z"))
+  df %>% mutate(created_on = parse_date_time("created_on", "Ymd H:M:S.z"))
 }
 
 #' Get the user's devices

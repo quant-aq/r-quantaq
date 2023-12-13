@@ -79,13 +79,25 @@ x <- as.data.frame(get_data("<serial-number>", limit=10))
 x <- as.data.frame(get_data("<serial-number>", raw=TRUE))
 ```
 
-### `get_teams()`
+### `get_organizations(organization_id=NULL)`
 
-Return a list of all teams that you belong to.
+Return a list of all organizations you can view,
+or the particular organization with id=organization_id.
 
 ```R
-# Get the list of teams
-x <- get_teams()
+# Get the list of organizations
+x <- get_organizations()
+```
+
+### `get_networks(organization_id, network_id=NULL)`
+
+Return a list of all networks you can can view in
+the context of the particular organization with id=organization_id,
+or the particular network with id=network_id within that organization.
+
+```R
+# Get the list of networks in organization 1
+x <- get_networks(organization_id = 1)
 ```
 
 ### `get_devices(sn=NULL, limit=NULL, sort=NULL)`

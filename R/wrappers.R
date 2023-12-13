@@ -46,32 +46,96 @@ as.data.frame.account <- function(x, ...){
     mutate(across(c("last_seen", "member_since"), ~parse_date_time(.x, "Ymd H:M:S.")))
 }
 
-#' Get the user's teams information.
+#' Get the user's organizations information.
 #'
-#' @param id The unique numeric identifier for the team
-#' @returns The teams information
+#' @param organization_id The unique numeric identifier for the org
+#' @return The organizations information
 #' @export
-get_teams <- function(id = NULL){
+get_organizations <- function(organization_id = NULL){
   structure(
-    requests(paste("teams", id, sep = "/")),
-    class = "teams"
+    requests(paste("orgs", organization_id, sep = "/")),
+    class = "organizations"
   )
 }
 
-#' Coerce teams information to data.frame
+#' Coerce organizations information to data.frame
 #'
 #' @importFrom magrittr `%>%`
 #'
-#' @param x The teams class returned by [get_teams()]
+#' @param x The organizations class returned by [get_organizations()]
 #' @param ... Placeholder for passing through to as.data.frame.default
-#' @returns A data.frame of teams information
+#' @returns A data.frame of organizations information
 #' @export
-as.data.frame.teams <- function(x, ...){
-  if(!is.null(names(x))){ # if x has names, then there is only one team returned
+as.data.frame.organizations <- function(x, ...){
+  if (!is.null(names(x))) {  # if x has names, then there is only one org
     x <- list(x)
   }
 
-  return(do.call(rbind, lapply(x, rbind)) %>% as.data.frame)
+  # we've got a complicated structure, so it's easiest to decide what to do with
+  # the nested stuff first (by converting to strings)
+  stringified <- lapply(x, function(row) {
+    row$devices <- paste(row$devices, collapse=";")
+    row$networks <- paste(row$networks, collapse=";")
+    members <- lapply(row$members, function(member) {
+      return(paste(member$user, "-", member$role))
+    })
+    row$members <- paste(members, collapse = ";")
+    return(row)
+  })
+
+  # see: https://stackoverflow.com/a/68162050
+  df <- do.call(rbind, lapply(stringified, function(row) {
+    # need to unclass the row or when we run data.frame
+    # we'll do the whole thing again!
+    row %>% unclass %>% data.frame
+  }))
+  df %>% mutate(created_on = parse_date_time(df$created_on, "Ymd H:M:S.z"))
+}
+
+#' Get the user's networks information, within the context of an organization
+#'
+#' @param organization_id The unique numeric identifier for the parent org
+#' @param network_id The unique numeric identifier for the network
+#' @return The networks information
+#' @export
+get_networks <- function(organization_id, network_id = NULL){
+  structure(
+    requests(paste("orgs", organization_id, "networks", network_id, sep = "/")),
+    class = "networks"
+  )
+}
+
+#' Coerce networks information to data.frame
+#'
+#' @importFrom magrittr `%>%`
+#'
+#' @param x The networks class returned by [get_networks()]
+#' @param ... Placeholder for passing through to as.data.frame.default
+#' @returns A data.frame of networks information
+#' @export
+as.data.frame.networks <- function(x, ...){
+  if (!is.null(names(x))) {  # if x has names, then there is only one network
+    x <- list(x)
+  }
+
+  # we've got a complicated structure, so it's easiest to decide what to do with
+  # the nested stuff first (by converting to strings)
+  stringified <- lapply(x, function(row) {
+    row$devices <- paste(row$devices, collapse=";")
+    members <- lapply(row$members, function(member) {
+      return(paste(member$user, "-", member$role))
+    })
+    row$members <- paste(members, collapse = ";")
+    return(row)
+  })
+
+  # see: https://stackoverflow.com/a/68162050
+  df <- do.call(rbind, lapply(stringified, function(row) {
+    # need to unclass the row or when we run data.frame
+    # we'll do the whole thing again!
+    row %>% unclass %>% data.frame
+  }))
+  df %>% mutate(created_on = parse_date_time(df$created_on, "Ymd H:M:S.z"))
 }
 
 #' Get the user's devices

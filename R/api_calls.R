@@ -16,7 +16,7 @@
 quantaq_request <- function(endpoint, qs_params = NULL){
   client <- access_client()
 
-  is_full_url <- stringr::str_detect(endpoint, "http")
+  is_full_url <- stringr::str_detect(endpoint, "^http")
 
   if(is_full_url){ # if it's a full url
     req <- httr2::request(endpoint)
